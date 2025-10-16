@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/detail_styles.css' %}">
+<div class="container mt-4" dir="rtl">
+
+    <h2 class="page-title text-center mb-4">جزئیات سفارش {{ order.order_number }}</h2>
+
+    {% if messages %}
+    {% for m in messages %}
+    <div class="alert alert-{{ m.tags }}">{{ m }}</div>
+    {% endfor %}
+    {% endif %}
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title mb-3">اطلاعات مشتری</h5>
+            <p><strong>نوع رسمیت:</strong> {{ order.get_official_type_display }}</p>
+            <p><strong>نوع درخواست:</strong> {{ order.request_type.name }}</p>
+            <p><strong>نام مشتری:</strong> {{ order.customer_name }}</p>
+
+            <div class="info-group mt-3">
+                <p><strong>شماره تماس:</strong> {{ order.customer_phone }}</p>
+                <p><strong>آدرس گیرنده:</strong> {{ order.recipient_address }}</p>
+                <p><strong>تاریخ ثبت:</strong> {{ order.order_date|date:"Y/m/d" }}</p>
+                <p><strong>وضعیت:</strong> {{ order.get_status_display }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title mb-3">محصولات سفارش</h5>
+            {% if order.items.all %}
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle order-detail-table">
+                    <thead>
+                        <tr>
+                            <th>نام محصول</th>
+                            <th>مقدار</th>
+                            <th>واحد</th>
+                            <th>نوع بسته‌بندی</th>
+                            <th>روش ارسال</th>
+                            <th>شماره بچ</th>
+                            <th>توضیحات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in order.items.all %}
+                        <tr>
+                            <td>{{ item.product_name }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ item.unit.name }}</td>
+                            <td>{{ item.packaging_type.name }}</td>
+                            <td>{{ item.shipping_method.name }}</td>
+                            <td>{{ item.batch_number|default:"—" }}</td>
+                            <td>{{ item.description|default:"—" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-muted">هیچ محصولی برای این سفارش ثبت نشده است.</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title mb-3">تأییدها</h5>
+            <p><strong>تأیید فروش:</strong>
+                {% if order.sales_approved_by %}
+                {{ order.sales_approved_by.get_full_name }} در {{ order.sales_approved_at|date:"Y/m/d H:i" }}
+                {% else %}
+                در انتظار
+                {% endif %}
+            </p>
+            <p><strong>تأیید مالی:</strong>
+                {% if order.finance_approved_by %}
+                {{ order.finance_approved_by.get_full_name }} در {{ order.finance_approved_at|date:"Y/m/d H:i" }}
+                {% else %}
+                در انتظار
+                {% endif %}
+            </p>
+            <p><strong>تأیید مدیریت:</strong>
+                {% if order.management_approved_by %}
+                {{ order.management_approved_by.get_full_name }} در {{ order.management_approved_at|date:"Y/m/d H:i" }}
+                {% else %}
+                در انتظار
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <div class="order-actions-container">
+        {% block action_buttons %}{% endblock %}
+    </div>
+
+</div>
+{% endblock %}

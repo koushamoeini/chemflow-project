@@ -1,0 +1,40 @@
+{% extends "core/dashboards/dashboard_base.html" %}
+
+{% block dashboard_title %}داشبورد مسئول اداری{% endblock %}
+
+{% block dashboard_cards %}
+    <div class="col-lg-4 col-md-6">
+        <div class="card shadow-sm h-100 border-0">
+            <div class="card-header bg-bsp-primary text-white text-center p-3">
+                <h5 class="mb-0">ایجاد عملیات جدید</h5>
+            </div>
+            <div class="card-body p-3 d-grid gap-3">
+                <a class="btn btn-primary w-100" href="{% url 'requests:request_create' %}">ثبت درخواست جدید</a>
+                <a class="btn btn-primary w-100" href="{% url 'overtime:overtime_list' %}">بخش اضافه کاری</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-6">
+        <div class="card shadow-sm h-100 border-0">
+            <div class="card-header bg-bsp-success text-white text-center p-3">
+                <h5 class="mb-0">وظایف و اقدام‌ها</h5>
+            </div>
+            <div class="card-body p-3 d-grid gap-3">
+                <a class="btn btn-success w-100" href="{% url 'overtime:overtime_list' %}">وظایف من - اضافه کاری</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-6">
+        <div class="card shadow-sm h-100 border-0">
+            <div class="card-header bg-bsp-secondary text-white text-center p-3">
+                <h5 class="mb-0">پیگیری و مشاهده</h5>
+            </div>
+            <div class="card-body p-3 d-grid gap-3">
+                <a class="btn btn-outline-secondary w-100" href="{% url 'requests:request_list' %}">لیست درخواست‌ها</a>
+                <a class="btn btn-outline-secondary w-100" href="{% url 'overtime:overtime_list' %}">لیست اضافه کاری</a>
+                <a class="btn btn-outline-secondary w-100" href="{% url 'orders:order_list' %}">همه سفارش‌ها</a>
+                <a class="btn btn-outline-info w-100 d-flex justify-content-center align-items-center" href="{% url 'core:my_all_requests' %}">لیست درخواست های من</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

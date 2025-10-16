@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/list_styles.css' %}">
+
+<div class="container" dir="rtl">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="m-0">درخواست‌های تولید</h2>
+
+        {% if can_create_prodreq %}
+        <a href="{% url 'planning:prodreq_create' %}" class="btn btn-primary">درخواست جدید</a>
+        {% endif %}
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+            <tr>
+                <th>شماره</th>
+                <th>تاریخ</th>
+                <th>ثبت‌کننده</th>
+                <th>وضعیت</th>
+                <th class="text-center">عملیات</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for r in requests %}
+            <tr>
+                <td>{{ r.request_number }}</td>
+                <td>{{ r.request_date|date:"Y/m/d" }}</td>
+                <td>{{ r.created_by.get_full_name|default:r.created_by.username }}</td>
+                <td>{{ r.get_status_display }}</td>
+                <td class="text-center d-flex gap-1 justify-content-center">
+                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'planning:prodreq_detail' r.pk %}">نمایش</a>
+
+                    {% if is_management %}
+                    <a class="btn btn-sm btn-outline-warning" href="{% url 'planning:prodreq_update' r.pk %}">ویرایش</a>
+                    {% elif is_factory_manager %}
+                    <a class="btn btn-sm btn-outline-warning" href="{% url 'planning:prodreq_update' r.pk %}">ویرایش</a>
+                    {% elif is_factory_planner and r.created_by_id == request.user.id %}
+                    {% if r.status == "draft" or r.status == "planning_signed" %}
+                    <a class="btn btn-sm btn-outline-warning" href="{% url 'planning:prodreq_update' r.pk %}">ویرایش</a>
+                    {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center text-muted">درخواستی یافت نشد.</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

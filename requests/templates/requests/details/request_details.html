@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}جزئیات درخواست {{ request_obj.request_number }}{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/detail_styles.css' %}">
+<div class="container mt-4" dir="rtl">
+
+    <h2 class="page-title text-center mb-4">جزئیات درخواست {{ request_obj.request_number }}</h2>
+
+    {% if messages %}{% for m in messages %}<div class="alert alert-{{ m.tags }}">{{ m }}</div>{% endfor %}{% endif %}
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title mb-3">اطلاعات کلی درخواست</h5>
+            <p><strong>شماره درخواست:</strong> {{ request_obj.request_number }}</p>
+            <p><strong>ثبت کننده:</strong> {{ request_obj.created_by.get_full_name }}</p>
+            <p><strong>تاریخ ثبت:</strong> {{ request_obj.created_at|date:"Y/m/d H:i" }}</p>
+            <p><strong>وضعیت تکمیل:</strong> {% if request_obj.is_completed %}تکمیل شده{% else %}در حال اجرا{% endif %}</p>
+        </div>
+    </div>
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title mb-3">آیتم‌های درخواست</h5>
+            {% if request_obj.items.all %}
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle request-detail-table">
+                    <thead>
+                    <tr>
+                        <th>نوع درخواست</th>
+                        <th>مرکز هزینه</th>
+                        <th>توضیحات</th>
+                        <th>عملیات</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in request_obj.items.all %}
+                    <tr>
+                        <td>{{ item.request_type.name }}</td>
+                        <td>{{ item.cost_center.name }}</td>
+                        <td>{{ item.description|default:"—" }}</td>
+                        <td class="text-center">—</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-muted">هیچ آیتمی برای این درخواست ثبت نشده است.</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title mb-3">وضعیت‌های تأیید</h5>
+            <p><strong>تأیید درخواست‌کننده:</strong>
+                {% if request_obj.creator_approved_at %}
+                {{ request_obj.creator.get_full_name }} در {{ request_obj.creator_approved_at|date:"Y/m/d H:i" }}
+                {% else %}
+                در انتظار
+                {% endif %}
+            </p>
+            <p><strong>تأیید مدیر کارخانه:</strong>
+                {% if request_obj.factory_approved_at %}
+                {{ request_obj.factory_manager.get_full_name }} در {{ request_obj.factory_approved_at|date:"Y/m/d H:i" }}
+                {% else %}
+                در انتظار
+                {% endif %}
+            </p>
+            <p><strong>تأیید مدیر اصلی:</strong>
+                {% if request_obj.management_approved_at %}
+                {{ request_obj.management.get_full_name }} در {{ request_obj.management_approved_at|date:"Y/m/d H:i" }}
+                {% else %}
+                در انتظار
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <div class="order-actions-container">
+        {% block action_buttons %}{% endblock %}
+    </div>
+</div>
+{% endblock %}

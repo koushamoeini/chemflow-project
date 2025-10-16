@@ -1,0 +1,151 @@
+/* === داشبورد استایل - نسخه نهایی === */
+
+/* --- Root Variables & Base Styles --- */
+:root {
+    --color-primary: #008040;
+    --color-primary-dark: #005a2e;
+    --color-accent: #FFC300;
+    --color-bg-light: #f3f7f4;
+    --color-bg-card: #fffbe6;
+    --color-text: #1a3323;
+    --color-text-light: #f9fff8;
+    --shadow-base: 0 8px 20px rgba(0, 80, 40, 0.08);
+    --shadow-hover: 0 16px 30px rgba(0, 128, 64, 0.15);
+    --radius: 1rem;
+    --transition-speed: 0.3s;
+}
+
+body {
+    background: linear-gradient(160deg, var(--color-bg-light), #e8f7ee);
+    font-family: 'Vazirmatn', sans-serif;
+    color: var(--color-text);
+}
+
+.dashboard-page .dashboard-title {
+    color: var(--color-primary);
+    font-weight: 900;
+    font-size: 2.4rem;
+    text-align: center;
+    display: inline-block;
+    border-bottom: 4px solid var(--color-accent);
+    padding-bottom: 0.5rem;
+    transition: color var(--transition-speed) ease;
+}
+.dashboard-page .dashboard-title:hover {
+    color: var(--color-primary-dark);
+}
+
+.dashboard-page .card {
+    border: none;
+    border-radius: var(--radius);
+    background: linear-gradient(180deg, #ffffff, var(--color-bg-card));
+    box-shadow: var(--shadow-base);
+    overflow: hidden;
+    animation: fadeInUp 0.6s ease both;
+    display: flex;
+    flex-direction: column;
+    will-change: transform, box-shadow;
+    transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+}
+.dashboard-page .card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-hover);
+}
+
+.dashboard-page .row.g-4 > [class*="col-"] {
+    display: flex;
+}
+.dashboard-page .row.g-4 > [class*="col-"] > .card {
+    flex-grow: 1;
+}
+
+.dashboard-page .card-header {
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: var(--color-text-light);
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+    text-align: right;
+    direction: rtl;
+    padding: 1rem 1.5rem;
+    border-bottom: 3px solid var(--color-accent);
+}
+
+.dashboard-page .card .card-body {
+    padding: 1.4rem;
+    background-color: transparent;
+    flex-grow: 1;
+}
+
+.dashboard-page .card .btn {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 1rem 1.2rem;
+    min-height: 50px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    text-align: center;
+    direction: rtl;
+    border-radius: calc(var(--radius) * 0.8);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    color: var(--color-primary);
+    background: #fff;
+    border: 2px solid var(--color-primary);
+    will-change: transform, box-shadow, background-color, color;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color var(--transition-speed) ease, color var(--transition-speed) ease;
+}
+
+.dashboard-page .card .btn:hover {
+    color: var(--color-text-light);
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: var(--shadow-hover);
+}
+
+.dashboard-page .card .btn .card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.dashboard-page .card .btn .card-count {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    transition: color var(--transition-speed) ease;
+    display: inline-flex;
+    align-items: center;
+}
+
+.dashboard-page .card .btn .card-count::before {
+    content: '(';
+    margin-left: 2px;
+}
+
+.dashboard-page .card .btn .card-count::after {
+    content: ')';
+    margin-right: 2px;
+}
+.dashboard-page .card .btn:hover .card-count {
+    color: var(--color-accent);
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+    .dashboard-page .dashboard-title {
+        font-size: 2rem;
+    }
+    .dashboard-page .card .btn {
+        min-height: auto;
+        padding: 0.8rem 1rem;
+    }
+    .dashboard-page .card .btn .card-count {
+        font-size: 2rem;
+    }
+}

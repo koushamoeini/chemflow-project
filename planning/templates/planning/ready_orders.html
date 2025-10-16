@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}سفارش‌های آماده برنامه‌ریزی{% endblock %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/list_styles.css' %}">
+<div class="container mt-4" dir="rtl">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="m-0">سفارش‌های تأییدشده برای برنامه‌ریزی</h2>
+
+        {# دکمه اصلی برای هماهنگی با تم به btn-primary تغییر کرد #}
+        {% if role == 'factory_planner' or role == 'management' %}
+        <a href="{% url 'planning:prodreq_create' %}" class="btn btn-primary">
+            ➕ درخواست تولید جدید
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="table-responsive">
+        {# کلاس table-striped حذف و table-hover اضافه شد #}
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+            <tr>
+                <th>شماره سفارش</th>
+                <th>مشتری</th>
+                <th>محصول</th>
+                <th>تاریخ</th>
+                <th>وضعیت برنامه‌ریزی</th>
+                <th>عملیات</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for o in orders %}
+            <tr>
+                <td>{{ o.order_number }}</td>
+                <td>{{ o.customer_name }}</td>
+                <td>
+                    {% for item in o.items.all %}
+                    {{ item.product_name }}{% if not forloop.last %}, {% endif %}
+                    {% empty %}
+                    —
+                    {% endfor %}
+                </td>
+                <td>{{ o.created_at|date:"Y-m-d" }}</td>
+                <td>
+                    {% if o.planning_status.is_planned %}
+                    <span class="badge bg-success">✅ برنامه‌ریزی انجام شد</span>
+                    {% else %}
+                    <span class="badge bg-warning text-dark">🟡 آماده برنامه‌ریزی</span>
+                    {% endif %}
+                </td>
+                <td class="d-flex gap-2">
+                    <a href="{% url 'orders:order_details' o.pk %}?return_to=ready_orders"
+                       class="btn btn-sm btn-outline-primary">
+                        جزئیات سفارش
+                    </a>
+
+                    {% if role == 'factory_planner' or role == 'management' %}
+                    <a href="{% url 'planning:prodreq_create' %}?order={{ o.pk }}" class="btn btn-sm btn-success">
+                        ایجاد درخواست تولید
+                    </a>
+                    {% endif %}
+
+                    {% if role == 'factory_planner' or role == 'management' or role == 'factory_manager' %}
+                    {% if o.planning_status.is_planned %}
+                    <a href="{% url 'planning:toggle_planning' o.pk %}" class="btn btn-sm btn-warning">
+                        ↩️ بازگشت به آماده
+                    </a>
+                    {% else %}
+                    <a href="{% url 'planning:toggle_planning' o.pk %}" class="btn btn-sm btn-info">
+                        ✅ تکمیل برنامه‌ریزی
+                    </a>
+                    {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-muted text-center">هیچ سفارشی آماده برنامه‌ریزی نیست.</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

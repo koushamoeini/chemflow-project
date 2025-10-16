@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/list_styles.css' %}">
+
+<div class="container" dir="rtl">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+            <tr>
+                <th>نوع درخواست</th>
+                <th>شماره</th>
+                <th>وضعیت</th>
+                <th>تاریخ ثبت</th>
+                <th class="text-center">عملیات</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for r in requests %}
+            <tr>
+                <td>{{ r.type }}</td>
+                <td>{{ r.number }}</td>
+                <td>{{ r.status }}</td>
+                <td>{{ r.date|date:"Y-m-d H:i" }}</td>
+                <td class="text-center">
+                    <a href="{{ r.url }}" class="btn btn-outline-secondary btn-sm">نمایش</a>
+                    
+                    {% if r.can_edit %}
+                    <a href="{{ r.edit_url }}" class="btn btn-sm btn-outline-warning">ویرایش</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center text-muted">هیچ درخواستی توسط شما ثبت نشده است.</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

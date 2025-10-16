@@ -1,0 +1,55 @@
+{% extends "overtime/details/overtime_details.html" %}
+
+{% block details_content %}
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title mb-3">وضعیت‌های تأیید</h5>
+            <p><strong>تأیید مسئول اداری:</strong>
+                {% if object.admin_approved_by %}
+                    {{ object.admin_approved_by.get_full_name|default:object.admin_approved_by.username }}
+                    در {{ object.admin_approved_at|date:"Y/m/d H:i" }}
+                {% else %}در انتظار{% endif %}
+            </p>
+            <p><strong>تأیید مدیر کارخانه:</strong>
+                {% if object.factory_approved_by %}
+                    {{ object.factory_approved_by.get_full_name|default:object.factory_approved_by.username }}
+                    در {{ object.factory_approved_at|date:"Y/m/d H:i" }}
+                {% else %}در انتظار{% endif %}
+            </p>
+            <p><strong>تأیید مدیریت:</strong>
+                {% if object.management_approved_by %}
+                    {{ object.management_approved_by.get_full_name|default:object.management_approved_by.username }}
+                    در {{ object.management_approved_at|date:"Y/m/d H:i" }}
+                {% else %}در انتظار{% endif %}
+            </p>
+        </div>
+    </div>
+{% endblock %}
+{% block action_buttons %}
+    <div class="top-actions d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex gap-2">
+            {% if can_approve %}
+                <form method="post" action="{% url 'overtime:admin_approve' object.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success">تأیید مسئول اداری</button>
+                </form>
+            {% endif %}
+
+            {% if can_edit %}
+                <a href="{% url 'overtime:overtime_update' object.pk %}" class="btn btn-warning">ویرایش</a>
+            {% endif %}
+        </div>
+
+        <a href="{% url 'overtime:overtime_list' %}" class="btn btn-secondary">بازگشت به لیست</a>
+    </div>
+
+    {% if can_cancel %}
+    <div class="bottom-actions">
+        <form method="post" action="{% url 'overtime:overtime_cancel' object.pk %}" class="cancel-form d-flex gap-2">
+            {% csrf_token %}
+            <input type="password" name="confirm_password" placeholder="رمز عبور" required class="form-control w-auto">
+            <button type="submit" class="btn btn-danger">لغو درخواست</button>
+        </form>
+    </div>
+    {% endif %}
+{% endblock %}

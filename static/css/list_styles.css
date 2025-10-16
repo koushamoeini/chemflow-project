@@ -1,0 +1,180 @@
+:root {
+    --color-primary: #008040;
+    --color-primary-dark: #005a2e;
+    --color-accent: #FFC300;
+    --color-bg-light: #f3f7f4;
+    --color-surface: #ffffff;
+    --color-text: #1a3323;
+    --color-text-light: #f9fff8;
+    --color-border-soft: #dce9e2;
+    --shadow-base: 0 8px 25px rgba(0, 80, 40, 0.09);
+    --radius: 0.8rem;
+    --transition-speed: 0.2s;
+}
+body {
+    background: linear-gradient(160deg, var(--color-bg-light), #e8f7ee);
+}
+/* --- Page Header --- */
+.container[dir="rtl"] h2 {
+    color: var(--color-primary);
+    font-weight: 800;
+    border-bottom: 4px solid var(--color-accent);
+    padding-bottom: 0.5rem;
+    display: inline-block;
+}
+
+/* --- Themed Buttons --- */
+.container[dir="rtl"] .btn-primary {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-text-light);
+    font-weight: 600;
+    padding: 0.6rem 1.5rem;
+    border-radius: 50px;
+    transition: all var(--transition-speed) ease-in-out;
+}
+
+.container[dir="rtl"] .btn-primary:hover {
+    background-color: var(--color-primary-dark);
+    border-color: var(--color-primary-dark);
+    transform: scale(1.05);
+}
+
+/* --- Table Styling --- */
+.table-responsive {
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-base);
+    overflow: hidden;
+}
+
+.table {
+    background: #fffbe6;
+    margin-bottom: 0;
+    border-collapse: collapse; /* Changed for a cleaner look */
+}
+
+/* --- Table Header (Themed) --- */
+.table thead.table-light th {
+    background: var(--color-primary);
+    color: var(--color-text-light);
+    font-weight: 700;
+    font-size: 0.9rem;
+    padding: 1.2rem;
+    vertical-align: middle;
+    border: none;
+}
+
+.table thead th:first-child {
+    border-top-right-radius: var(--radius);
+}
+.table thead th:last-child {
+    border-top-left-radius: var(--radius);
+    text-align: center;
+}
+
+
+/* --- Table Body --- */
+.table tbody td {
+    padding: 1.2rem; /* Increased padding */
+    vertical-align: middle;
+    border: none; /* Removed cell borders */
+}
+
+/* Typography focus */
+.table tbody td:nth-child(1),
+.table tbody td:nth-child(2) {
+    font-weight: 600;
+    color: var(--color-primary-dark);
+}
+
+/* Simple & clean hover effect */
+.table.table-hover tbody tr:hover {
+    background-color: #f7fdf9;
+}
+
+/* Zebra-striping without borders */
+.table tbody tr:nth-of-type(even) {
+    background-color: var(--color-bg-light);
+}
+
+/* --- Action Buttons in Table --- */
+.table .btn-sm {
+    font-weight: 600;
+    padding: 0.3rem 1rem;
+    border-radius: 20px;
+    border-width: 2px;
+    transition: all var(--transition-speed) ease;
+}
+
+.table .btn-outline-primary {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.table .btn-outline-primary:hover {
+    background-color: var(--color-primary);
+    color: var(--color-text-light);
+    transform: scale(1.05);
+}
+
+/* Themed secondary button */
+.table .btn-outline-secondary {
+    color: var(--color-primary-dark);
+    border-color: var(--color-border-soft);
+}
+.table .btn-outline-secondary:hover {
+    background-color: var(--color-border-soft);
+    border-color: var(--color-border-soft);
+    color: var(--color-primary-dark);
+    transform: scale(1.05);
+}
+
+/* --- Empty State --- */
+.table tbody tr td[colspan="8"] {
+    padding: 2.5rem;
+    text-align: center;
+    font-weight: 500;
+    background-color: #f8f9fa;
+}
+/* --- Additional Themed Button Styles --- */
+.table .btn-success {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-text-light);
+}
+.table .btn-success:hover {
+    background-color: var(--color-primary-dark);
+    border-color: var(--color-primary-dark);
+    transform: scale(1.05);
+}
+
+.table .btn-warning {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-text);
+}
+.table .btn-warning:hover {
+    background-color: #ffcd3a; /* A slightly lighter yellow for hover */
+    border-color: #ffcd3a;
+    transform: scale(1.05);
+}
+
+.table .btn-info {
+    background-color: var(--color-primary-dark);
+    border-color: var(--color-primary-dark);
+    color: var(--color-text-light);
+}
+.table .btn-info:hover {
+    background-color: #004422; /* A slightly lighter dark green */
+    border-color: #004422;
+    transform: scale(1.05);
+}
+
+/* --- More Robust Empty State --- */
+/* This rule replaces the old colspan="8" to work with any table */
+.table tbody tr td[colspan] {
+    padding: 2.5rem;
+    text-align: center;
+    font-weight: 500;
+    background-color: var(--color-surface);
+}

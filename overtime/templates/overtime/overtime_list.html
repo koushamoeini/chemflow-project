@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/list_styles.css' %}">
+
+<div class="container" dir="rtl">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="m-0">درخواست‌های اضافه کاری</h2>
+        {% if can_create %}
+        <a href="{% url 'overtime:overtime_create' %}" class="btn btn-primary">ایجاد درخواست جدید</a>
+        {% endif %}
+    </div>
+
+    {% if messages %}
+    <div class="mb-3">
+        {% for m in messages %}
+        <div class="alert alert-{{ m.tags }}">{{ m }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+            <tr>
+                <th>شماره درخواست</th>
+                <th>تعداد پرسنل</th>
+                <th>وضعیت</th>
+                <th>ایجادکننده</th>
+                <th>مرحله بعدی</th>
+                <th>تاریخ ثبت</th>
+                <th class="text-center">عملیات</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for req in requests %}
+            <tr>
+                <td>{{ req.request_number }}</td>
+                <td>{{ req.items.count }} نفر</td>
+                <td>{{ req.get_status_display }}</td>
+                <td>{{ req.created_by.get_full_name|default:req.created_by.username }}</td>
+                <td>{{ req.get_next_approver }}</td>
+                <td>{{ req.created_at|date:"Y-m-d H:i" }}</td>
+                <td class="text-center">
+                    <a href="{% url 'overtime:overtime_detail' req.pk %}" class="btn btn-outline-secondary btn-sm">نمایش</a>
+                    
+                    {# --- این بخش اضافه شده است --- #}
+                    {% if req.user_can_edit %}
+                    <a href="{% url 'overtime:overtime_update' req.pk %}" class="btn btn-sm btn-outline-warning">ویرایش</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="text-center text-muted">هیچ درخواستی یافت نشد.</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "requests/details/request_details.html" %}
+
+{% block extra_info_content %}
+{% include 'includes/approval_status.html' %}
+{% endblock %}
+
+{% block action_buttons %}
+<div class="top-actions d-flex gap-2 mb-3">
+    <a href="{% url 'requests:request_list' %}" class="btn btn-secondary">بازگشت به لیست درخواست‌ها</a>
+</div>
+{# دکمه‌های عملیاتی برای کاربران View Only حذف می‌شوند. #}
+{% endblock %}

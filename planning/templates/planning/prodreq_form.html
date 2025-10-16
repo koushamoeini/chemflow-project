@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/form_styles.css' %}">
+
+<div class="container mt-4" dir="rtl">
+    <h2 class="mb-4 text-center">{{ title|default:"ثبت / ویرایش درخواست تولید" }}</h2>
+
+    {% if messages %}
+    {% for m in messages %}
+    <div class="alert alert-{{ m.tags }}">{{ m }}</div>
+    {% endfor %}
+    {% endif %}
+
+    <form method="post" class="card p-4 shadow-sm border-0" id="prodreq-form">
+        {% csrf_token %}
+
+        <div class="mb-4 small text-muted">
+            شماره درخواست پس از ثبت ساخته می‌شود. تاریخ: {% now "Y/m/d" %}
+        </div>
+
+        <h5 class="mb-3">محصولات</h5>
+        {{ formset.management_form }}
+
+        {% if formset.non_form_errors %}
+        <div class="alert alert-danger">
+            {{ formset.non_form_errors }}
+        </div>
+        {% endif %}
+
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle bsp-prodreq-form-table" id="item-table">
+                <thead>
+                <tr>
+                    <th>نام محصول</th>
+                    <th>مقدار</th>
+                    <th>واحد</th>
+                    <th>نوع بسته‌بندی</th>
+                    <th>نام مشتری</th>
+                    <th>توضیحات</th>
+                    <th>حذف</th>
+                </tr>
+                </thead>
+                <tbody id="form-container">
+                {% for f in formset.forms %}
+                <tr class="formset-row">
+                    <td>
+                        {{ f.id }}
+                        {{ f.product_name }}
+                    </td>
+                    <td>{{ f.quantity }}{{ f.quantity.errors }}</td>
+                    <td>{{ f.unit }}{{ f.unit.errors }}</td>
+                    <td>{{ f.packaging_type }}{{ f.packaging_type.errors }}</td>
+                    <td>{{ f.customer_name }}{{ f.customer_name.errors }}</td>
+                    <td>{{ f.description }}{{ f.description.errors }}</td>
+                    <td class="text-center">{% if formset.can_delete %}{{ f.DELETE }}{% endif %}</td>
+                </tr>
+                {% for err in f.non_form_errors %}<tr><td colspan="7" class="text-danger small">{{ err }}</td></tr>{% endfor %}
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <table style="display: none;">
+            <tr id="empty-form" class="formset-row">
+                {% with f=formset.empty_form %}
+                {{ f.id }}
+                <td>{{ f.product_name }}</td>
+                <td>{{ f.quantity }}</td>
+                <td>{{ f.unit }}</td>
+                <td>{{ f.packaging_type }}</td>
+                <td>{{ f.customer_name }}</td>
+                <td>{{ f.description }}</td>
+                <td class="text-center">{% if formset.can_delete %}{{ f.DELETE }}{% endif %}</td>
+                {% endwith %}
+            </tr>
+        </table>
+
+
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-primary" id="add-item-btn">+ افزودن محصول</button>
+        </div>
+
+        <hr class="my-4">
+
+        <div class="text-center mt-3">
+            <button type="submit" class="btn btn-success px-4">ثبت نهایی</button>
+            <a href="{% url 'planning:prodreq_list' %}" class="btn btn-secondary px-4 ms-2">بازگشت</a>
+        </div>
+    </form>
+</div>
+
+<script src="{% static 'js/prodreq_form.js' %}"></script>
+
+{% endblock %}

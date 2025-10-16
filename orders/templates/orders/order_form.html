@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'css/form_styles.css' %}">
+<link rel="stylesheet" href="{% static 'css/order_style/auto_complete_styles.css' %}">
+
+<div class="container mt-4" dir="rtl">
+    <h2 class="mb-4 text-center">ثبت / ویرایش سفارش</h2>
+
+    <form method="post" class="card p-4 shadow-sm border-0">
+        {% csrf_token %}
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <label for="{{ form.official_type.id_for_label }}" class="form-label">نوع رسمیت</label>
+                {{ form.official_type }}
+            </div>
+            <div class="col-md-6">
+                <label for="{{ form.request_type.id_for_label }}" class="form-label">نوع درخواست</label>
+                {{ form.request_type }}
+            </div>
+        </div>
+
+        <h5 class="mb-3">اطلاعات مشتری</h5>
+        <div class="row g-3">
+            <div class="col-md-4 position-relative">
+                <label for="{{ form.customer_code.id_for_label }}" class="form-label">کد مشتری</label>
+                {{ form.customer_code }}
+            </div>
+
+            <div class="col-md-4 position-relative">
+                <label for="{{ form.customer_name.id_for_label }}" class="form-label">نام مشتری</label>
+                {{ form.customer_name }}
+                <div id="autocomplete-results" class="autocomplete-results"></div>
+                <input type="hidden" id="customer-id" name="customer_id">
+            </div>
+
+            <div class="col-md-4">
+                <label for="{{ form.customer_phone.id_for_label }}" class="form-label">شماره تماس</label>
+                {{ form.customer_phone }}
+            </div>
+
+            <div class="col-md-12 mt-3">
+                <label for="{{ form.recipient_address.id_for_label }}" class="form-label">آدرس گیرنده</label>
+                {{ form.recipient_address }}
+            </div>
+        </div>
+
+        <hr class="my-4">
+
+        <h5 class="mb-3">محصولات سفارش</h5>
+        {{ formset.management_form }}
+        {{ formset.non_form_errors }}
+
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle order-items-table">
+                <thead>
+                <tr>
+                    <th>کد محصول</th>
+                    <th>نام محصول</th>
+                    <th>مقدار</th>
+                    <th>واحد</th>
+                    <th>نوع بسته‌بندی</th>
+                    <th>روش ارسال</th>
+                    <th>شماره بچ</th>
+                    <th>توضیحات</th>
+                    <th>حذف</th>
+                </tr>
+                </thead>
+                <tbody id="form-container">
+                {% for f in formset.forms %}
+                <tr class="item-form">
+                    <td class="position-relative">
+                        {{ f.id }}
+                        {{ f.product_code }}
+                    </td>
+                    <td class="position-relative">
+                        {{ f.product_name }}{{ f.product_name.errors }}
+                        <div class="product-autocomplete-results autocomplete-results" style="display: none;"></div>
+                    </td>
+                    <td>{{ f.quantity }}{{ f.quantity.errors }}</td>
+                    <td>{{ f.unit }}{{ f.unit.errors }}</td>
+                    <td>{{ f.packaging_type }}{{ f.packaging_type.errors }}</td>
+                    <td>{{ f.shipping_method }}{{ f.shipping_method.errors }}</td>
+                    <td>{{ f.batch_number }}{{ f.batch_number.errors }}</td>
+                    <td>{{ f.description }}{{ f.description.errors }}</td>
+                    <td class="text-center">{% if formset.can_delete %}{{ f.DELETE }}{% endif %}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <table style="display: none;">
+            <tr id="empty-form" class="item-form">
+                {{ formset.empty_form.id }}
+                <td class="position-relative">
+                    {{ formset.empty_form.product_code }}
+                </td>
+                <td class="position-relative">
+                    {{ formset.empty_form.product_name }}
+                    <div class="product-autocomplete-results autocomplete-results" style="display: none;"></div>
+                </td>
+                <td>{{ formset.empty_form.quantity }}</td>
+                <td>{{ formset.empty_form.unit }}</td>
+                <td>{{ formset.empty_form.packaging_type }}</td>
+                <td>{{ formset.empty_form.shipping_method }}</td>
+                <td>{{ formset.empty_form.batch_number }}</td>
+                <td>{{ formset.empty_form.description }}</td>
+                <td class="text-center">{% if formset.can_delete %}{{ formset.empty_form.DELETE }}{% endif %}</td>
+            </tr>
+        </table>
+
+        <div class="d-flex gap-2">
+            <button type="button" id="add-item-btn" class="btn btn-outline-primary">+ افزودن محصول</button>
+        </div>
+
+        <hr class="my-4">
+        <div class="text-center mt-3">
+            <button type="submit" name="save_order" class="btn btn-success px-4">ثبت نهایی</button>
+            {% url 'orders:order_list' as back_url %}
+            <a href="{{ back_url|default:'#' }}" class="btn btn-secondary px-4 ms-2">بازگشت</a>
+        </div>
+    </form>
+</div>
+
+<script src="{% static 'js/order_form.js' %}"></script>
+<script src="{% static 'js/universal_autocomplete.js' %}"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Initialize select elements
+        document.querySelectorAll("select").forEach(sel => {
+            if (sel.options.length > 0 && sel.options[0].value === "") {
+                sel.options[0].text = "";
+            }
+        });
+
+        // Initialize Customer Autocomplete
+        const customerAutocomplete = new UniversalAutocomplete({
+            triggerInputs: [
+                document.getElementById('{{ form.customer_name.id_for_label }}'),
+                document.getElementById('{{ form.customer_code.id_for_label }}')
+            ],
+            updateInputs: [
+                { element: document.getElementById('{{ form.customer_name.id_for_label }}'), field: 'name' },
+                { element: document.getElementById('{{ form.customer_code.id_for_label }}'), field: 'code' },
+                { element: document.getElementById('{{ form.customer_phone.id_for_label }}'), field: 'phone' },
+                { element: document.getElementById('{{ form.recipient_address.id_for_label }}'), field: 'address' }
+            ],
+            resultsContainer: document.getElementById('autocomplete-results'),
+            url: '{% url "orders:customer_autocomplete" %}',
+            displayTemplate: (customer) => `
+                <div><strong>${customer.code || 'بدون کد'}</strong></div>
+                <div>${customer.name}</div>
+                <div class="small text-muted">${customer.phone}</div>
+            `
+        });
+
+        // Initialize Product Autocomplete for all existing rows
+        function initializeProductAutocomplete() {
+            document.querySelectorAll('.item-form').forEach(row => {
+                const productNameInput = row.querySelector('input[name$="-product_name"]');
+                const productCodeInput = row.querySelector('input[name$="-product_code"]');
+                const resultsContainer = row.querySelector('.product-autocomplete-results');
+
+                if (productNameInput && productCodeInput && resultsContainer) {
+                    new UniversalAutocomplete({
+                        triggerInputs: [productNameInput, productCodeInput],
+                        updateInputs: [
+                            { element: productNameInput, field: 'name' },
+                            { element: productCodeInput, field: 'code' }
+                        ],
+                        resultsContainer: resultsContainer,
+                        url: '{% url "orders:product_autocomplete" %}',
+                        displayTemplate: (product) => `
+                            <div><strong>${product.code}</strong></div>
+                            <div>${product.name}</div>
+                        `
+                    });
+                }
+            });
+        }
+
+        // Initialize product autocomplete for existing rows
+        initializeProductAutocomplete();
+
+        // Re-initialize product autocomplete when new rows are added
+        const addButton = document.getElementById('add-item-btn');
+        if (addButton) {
+            addButton.addEventListener('click', function() {
+                setTimeout(() => {
+                    initializeProductAutocomplete();
+                }, 100);
+            });
+        }
+    });
+</script>
+{% endblock %}

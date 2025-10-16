@@ -1,0 +1,33 @@
+{% extends "requests/details/request_details.html" %}
+
+{% block extra_info_content %}
+...
+{% endblock %}
+
+{% block action_buttons %}
+
+<div class="top-actions d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex gap-2">
+        {% if can_edit %}
+        <a href="{% url 'requests:request_update' pk=request_obj.pk %}" class="btn btn-warning">ویرایش</a>
+        {% endif %}
+
+        {% if can_approve_creator %}
+        <a href="{% url 'requests:approve_creator' pk=request_obj.pk %}" class="btn btn-success">تأیید درخواست</a>
+        {% endif %}
+    </div>
+
+    <a href="{% url 'requests:request_list' %}" class="btn btn-secondary">بازگشت به لیست درخواست‌ها</a>
+</div>
+
+{# اضافه شدن بخش لغو درخواست #}
+{% if can_cancel %}
+<div class="bottom-actions">
+    <form method="post" action="{% url 'requests:cancel_request' pk=request_obj.pk %}" class="cancel-form d-flex gap-2">
+        {% csrf_token %}
+        <input type="password" name="confirm_password" placeholder="رمز عبور" required class="form-control w-auto">
+        <button type="submit" class="btn btn-danger">لغو درخواست</button>
+    </form>
+</div>
+{% endif %}
+{% endblock %}

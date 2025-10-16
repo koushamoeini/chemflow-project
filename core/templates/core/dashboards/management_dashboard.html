@@ -1,0 +1,43 @@
+{% extends "core/dashboards/dashboard_base.html" %}
+
+{% block dashboard_title %}داشبورد مدیریت{% endblock %}
+
+{% block dashboard_cards %}
+    <div class="col-lg-4 col-md-6">
+        <div class="card shadow-sm h-100 border-0">
+            <div class="card-header bg-bsp-primary text-white text-center p-3"><h5 class="mb-0">ایجاد عملیات جدید</h5></div>
+            <div class="card-body p-3 d-grid gap-3">
+                <a class="btn btn-primary w-100 d-flex justify-content-center align-items-center" href="{% url 'orders:order_create' %}">ثبت سفارش جدید</a>
+                <a class="btn btn-primary w-100 d-flex justify-content-center align-items-center" href="{% url 'planning:prodreq_create' %}">درخواست تولید جدید</a>
+                <a class="btn btn-primary w-100 d-flex justify-content-center align-items-center" href="{% url 'requests:request_create' %}">ثبت درخواست جدید</a>
+                <a class="btn btn-primary w-100 d-flex justify-content-center align-items-center" href="{% url 'overtime:overtime_create' %}">ثبت اضافه کاری</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4 col-md-6">
+        <div class="card shadow-sm h-100 border-0">
+            <div class="card-header bg-bsp-success text-white text-center p-3"><h5 class="mb-0">وظایف و اقدام‌ها</h5></div>
+            <div class="card-body p-3 d-grid gap-3">
+                <a class="btn btn-success w-100 d-flex justify-content-center align-items-center" href="{% url 'orders:my_tasks' %}">وظایف من - فروش</a>
+                <a class="btn btn-success w-100 d-flex justify-content-center align-items-center" href="{% url 'planning:my_tasks' %}">وظایف من - تولید</a>
+                <a class="btn btn-success w-100 d-flex justify-content-center align-items-center" href="{% url 'overtime:my_tasks'%}">وظایف من - اضافه کاری</a>
+                <a class="btn btn-success w-100 d-flex justify-content-center align-items-center" href="{% url 'requests:my_tasks' %}">وظایف من - درخواست ها</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4 col-md-6">
+        <div class="card shadow-sm h-100 border-0">
+            <div class="card-header bg-bsp-secondary text-white text-center p-3"><h5 class="mb-0">پیگیری و مشاهده</h5></div>
+            <div class="card-body p-3 d-grid gap-3 card-body-status">
+                <a class="btn btn-outline-info w-100 d-flex justify-content-center align-items-center" href="{% url 'core:my_all_requests' %}">لیست درخواست های من</a>
+                <a class="btn btn-outline-secondary w-100 d-flex justify-content-center align-items-center" href="{% url 'orders:order_list' %}">لیست سفارش ها</a>
+                <a class="btn btn-outline-secondary w-100 d-flex justify-content-center align-items-center" href="{% url 'planning:prodreq_list' %}">لیست درخواست‌های تولید</a>
+                <a class="btn btn-outline-secondary w-100 d-flex justify-content-center align-items-center" href="{% url 'overtime:overtime_list' %}">لیست درخواست های اضافه کاری</a>
+                <a class="btn btn-outline-secondary w-100 d-flex justify-content-center align-items-center" href="{% url 'requests:request_list' %}">لیست درخواست‌ها</a>
+            
+            </div>
+        </div>
+    </div>
+{% endblock %}

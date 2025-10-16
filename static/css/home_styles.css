@@ -1,0 +1,85 @@
+:root {
+    --bsp-primary-color: #008040;
+    --bsp-accent-color: #008040;
+    --bsp-secondary-color: #005a2e;
+    --bsp-background-light: #F8F9FA;
+    --bsp-surface-white: #FFFFFF;
+    --bsp-text-dark: #212529;
+    --color-bg-light: #f3f7f4;
+    --bsp-warning: #FFDA6A;
+}
+
+body {
+    background: linear-gradient(160deg, var(--color-bg-light), #e8f7ee);
+    font-family: 'Vazirmatn', sans-serif;
+    color: var(--bsp-text-dark);
+    line-height: 1.7;
+}
+
+a {
+    color: var(--bsp-primary-color);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+a:hover {
+    color: var(--bsp-secondary-color);
+}
+
+.btn-primary {
+    background-color: var(--bsp-primary-color) !important;
+    border-color: var(--bsp-primary-color) !important;
+    color: var(--bsp-surface-white);
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: var(--bsp-secondary-color) !important;
+    border-color: var(--bsp-secondary-color) !important;
+    box-shadow: 0 4px 10px rgba(0, 128, 64, 0.4);
+}
+
+.btn-success {
+    /* این بخش از کد دوبار تکرار شده بود، من نسخه آخر با رنگ زرد را حفظ می‌کنم */
+    background-color: #FFC300 !important; /* رنگ زرد */
+    border-color: #FFC300 !important;
+    color: var(--bsp-text-dark); /* رنگ متن تیره برای خوانایی */
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+/* حذف بخش تکراری btn-success:hover که قبلا سبز بود و حالا btn-success خودش زرد است */
+/* اگر حالت هاور خاصی برای دکمه‌های زرد نیاز دارید، اینجا باید تعریف شود. */
+.btn-success:hover {
+    background-color: #FF9F00 !important; /* رنگ هاور تیره‌تر برای زرد */
+    border-color: #FF9F00 !important;
+    color: var(--bsp-text-dark);
+    box-shadow: 0 4px 10px rgba(255, 195, 0, 0.4);
+}
+
+
+.btn-secondary {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    color: var(--bsp-surface-white);
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    transition: background-color 0.3s;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268 !important;
+    border-color: #5a6268 !important;
+}
+
+.shadow-sm {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    border-radius: 1rem !important;
+    /* این خط را از سبز به زرد تغییر دهید */
+    border-bottom: 5px solid var(--bsp-warning); /* یا هر ضخامت دیگری */
+}

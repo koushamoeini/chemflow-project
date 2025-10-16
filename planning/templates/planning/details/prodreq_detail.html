@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/detail_styles.css' %}">
+<div class="container mt-4" dir="rtl">
+    <h2 class="page-title text-center mb-4">درخواست تولید {{ req.request_number }}</h2>
+
+    {% if messages %}{% for m in messages %}<div class="alert alert-{{ m.tags }}">{{ m }}</div>{% endfor %}{% endif %}
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title mb-3">اطلاعات کلی</h5>
+            <p><strong>تاریخ:</strong> {{ req.request_date|date:"Y/m/d" }}</p>
+            <p><strong>وضعیت:</strong> {{ req.get_status_display }}</p>
+        </div>
+    </div>
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title mb-3">محصولات</h5>
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle prodreq-detail-table">
+                    <thead>
+                        <tr>
+                            <th>نام محصول</th>
+                            <th>مقدار</th>
+                            <th>واحد</th>
+                            <th>بسته‌بندی</th>
+                            <th>نام مشتری</th>
+                            <th>توضیحات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for it in req.items.all %}
+                        <tr>
+                            <td>{{ it.product_name }}</td>
+                            <td>{{ it.quantity }}</td>
+                            <td>{{ it.unit.name }}</td>
+                            <td>{{ it.packaging_type.name }}</td>
+                            <td>{{ it.customer_name }}</td>
+                            <td>{{ it.description|default:"—" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-muted text-center">محصولی ثبت نشده است.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title mb-3">تأییدها</h5>
+            <p><strong>برنامه‌ریزی:</strong>
+                {% if req.planning_signed_by %}
+                {{ req.planning_signed_by.get_full_name|default:req.planning_signed_by.username }} در
+                {{ req.planning_signed_at|date:"Y/m/d H:i" }}
+                {% else %}در انتظار{% endif %}
+            </p>
+            <p><strong>کارخانه:</strong>
+                {% if req.factory_signed_by %}
+                {{ req.factory_signed_by.get_full_name|default:req.factory_signed_by.username }} در
+                {{ req.factory_signed_at|date:"Y/m/d H:i" }}
+                {% else %}در انتظار{% endif %}
+            </p>
+        </div>
+    </div>
+
+    <div class="order-actions-container">
+        {# --- تغییر اصلی اینجاست --- #}
+        <div class="top-actions d-flex justify-content-between align-items-center">
+            <div class="d-flex gap-2">
+                {% block action_buttons %}
+                {# این بلاک حالا خالی است و توسط فایل‌های فرزند پر می‌شود #}
+                {% endblock %}
+            </div>
+            <a href="{% url 'planning:prodreq_list' %}" class="btn btn-secondary">بازگشت</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

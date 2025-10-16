@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+
+<link rel="stylesheet" href="{% static 'css/form_styles.css' %}">
+
+<div class="container mt-4" dir="rtl">
+    <h2 class="mb-4 text-center">ثبت / ویرایش درخواست</h2>
+
+    <form method="post" class="card p-4 shadow-sm border-0">
+        {% csrf_token %}
+
+        <h5 class="mb-3">آیتم‌های درخواست</h5>
+        {{ formset.management_form }}
+        {{ formset.non_form_errors }}
+
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle request-items-table">
+                <thead>
+                <tr>
+                    <th>نوع درخواست</th>
+                    <th>مرکز هزینه</th>
+                    <th>توضیحات</th>
+                    <th>حذف</th>
+                </tr>
+                </thead>
+                <tbody id="form-container">
+                {% for f in formset.forms %}
+                <tr class="item-form">
+                    <td>
+                        {{ f.id }}
+                        {{ f.request_type }}{{ f.request_type.errors }}
+                    </td>
+                    <td>{{ f.cost_center }}{{ f.cost_center.errors }}</td>
+                    <td>{{ f.description }}{{ f.description.errors }}</td>
+                    <td class="text-center">{% if formset.can_delete %}{{ f.DELETE }}{% endif %}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <table style="display: none;">
+            <tr id="empty-form" class="item-form">
+                <td>
+                    {{ formset.empty_form.id }}
+                    {{ formset.empty_form.request_type }}
+                </td>
+                <td>{{ formset.empty_form.cost_center }}</td>
+                <td>{{ formset.empty_form.description }}</td>
+                <td class="text-center">{% if formset.can_delete %}{{ formset.empty_form.DELETE }}{% endif %}</td>
+            </tr>
+        </table>
+
+        <div class="d-flex gap-2">
+            <button type="button" id="add-item-btn" class="btn btn-outline-primary">+ افزودن آیتم</button>
+        </div>
+
+        <hr class="my-4">
+        <div class="text-center mt-3">
+            <button type="submit" name="save_request" class="btn btn-success px-4">ثبت نهایی</button>
+            {% url 'requests:request_list' as back_url %}
+            <a href="{{ back_url|default:'#' }}" class="btn btn-secondary px-4 ms-2">بازگشت</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll("select").forEach(sel => {
+            if (sel.options.length > 0 && sel.options[0].value === "") {
+                sel.options[0].text = "";
+            }
+        });
+    });
+</script>
+{% endblock %}

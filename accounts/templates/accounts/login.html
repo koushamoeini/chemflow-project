@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}ورود{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'css/login_styles.css' %}">
+{% endblock %}
+
+{% block content %}
+<h2 class="mb-4 text-center">ورود به سامانه</h2>
+<form method="post" class="mx-auto" style="max-width:420px;">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn btn-primary w-100">ورود</button>
+</form>
+{% endblock %}

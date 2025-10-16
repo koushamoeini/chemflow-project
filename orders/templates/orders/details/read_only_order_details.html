@@ -1,0 +1,11 @@
+{% extends "orders/details/order_details.html" %}
+
+{% block action_buttons %}
+<div class="top-actions d-flex justify-content-end">
+    {% if request.GET.return_to == 'ready_orders' %}
+    <a href="{% url 'planning:ready_orders' %}" class="btn btn-secondary">بازگشت به سفارش‌های آماده</a>
+    {% else %}
+    <a href="{% url 'orders:order_list' %}" class="btn btn-secondary">بازگشت به لیست سفارش‌ها</a>
+    {% endif %}
+</div>
+{% endblock %}

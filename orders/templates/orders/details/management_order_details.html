@@ -1,0 +1,55 @@
+{% extends "orders/details/order_details.html" %}
+
+{% block action_buttons %}
+<div class="top-actions d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex gap-2">
+        {% if can_edit %}
+        <a href="{% url 'orders:order_update' order.pk %}" class="btn btn-warning">ویرایش</a>
+        {% endif %}
+
+        {# --- تغییر اصلی اینجاست --- #}
+
+        {# شرط نمایش دکمه تأیید فروش #}
+        {% if can_approve_sales and order.status == 'pending_sales' %}
+        <form method="post" action="{% url 'orders:approve_order' order.pk 'sales' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">تأیید (فروش)</button>
+        </form>
+        {% endif %}
+
+        {# شرط نمایش دکمه تأیید مالی #}
+        {% if can_approve_finance and order.status == 'pending_finance' %}
+        <form method="post" action="{% url 'orders:approve_order' order.pk 'finance' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">تأیید (مالی)</button>
+        </form>
+        {% endif %}
+
+        {# شرط نمایش دکمه تأیید مدیریت #}
+        {# مدیریت همیشه دکمه را می‌بیند، اما می‌توانیم آن را به وضعیت‌های خاص محدود کنیم #}
+        {% if can_approve_management %}
+            <form method="post" action="{% url 'orders:approve_order' order.pk 'management' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-dark">تأیید نهایی مدیریت</button>
+            </form>
+            {# endif #}
+        {% endif %}
+    </div>
+
+    {% if request.GET.return_to == 'ready_orders' %}
+    <a href="{% url 'planning:ready_orders' %}" class="btn btn-secondary">بازگشت به سفارش‌های آماده</a>
+    {% else %}
+    <a href="{% url 'orders:order_list' %}" class="btn btn-secondary">بازگشت به لیست سفارش‌ها</a>
+    {% endif %}
+</div>
+
+{% if can_cancel %}
+<div class="bottom-actions">
+    <form method="post" action="{% url 'orders:cancel_order' order.pk %}" class="cancel-form d-flex gap-2">
+        {% csrf_token %}
+        <input type="password" name="confirm_password" placeholder="رمز عبور" required class="form-control w-auto">
+        <button type="submit" class="btn btn-danger">لغو سفارش</button>
+    </form>
+</div>
+{% endif %}
+{% endblock %}
