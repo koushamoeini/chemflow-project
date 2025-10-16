@@ -1,0 +1,13 @@
+
+venv/
+env/
+__pycache__/
+
+*.pyc
+*~$
+.DS_Store
+
+media/
+static_collected/
+db.sqlite3
+settings_local.py
