@@ -1,12 +1,8 @@
-/* === داشبورد استایل - نسخه نهایی === */
-
-/* --- Root Variables & Base Styles --- */
 :root {
     --color-primary: #008040;
     --color-primary-dark: #005a2e;
     --color-accent: #FFC300;
     --color-bg-light: #f3f7f4;
-    --color-bg-card: #fffbe6;
     --color-text: #1a3323;
     --color-text-light: #f9fff8;
     --shadow-base: 0 8px 20px rgba(0, 80, 40, 0.08);
@@ -36,21 +32,18 @@ body {
 }
 
 .dashboard-page .card {
-    border: none;
-    border-radius: var(--radius);
-    background: linear-gradient(180deg, #ffffff, var(--color-bg-card));
-    box-shadow: var(--shadow-base);
-    overflow: hidden;
-    animation: fadeInUp 0.6s ease both;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    animation: none !important;
     display: flex;
     flex-direction: column;
-    will-change: transform, box-shadow;
-    transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
 }
 .dashboard-page .card:hover {
-    transform: translateY(-6px);
-    box-shadow: var(--shadow-hover);
+    transform: none;
+    box-shadow: none !important;
 }
+
 
 .dashboard-page .row.g-4 > [class*="col-"] {
     display: flex;
@@ -64,10 +57,12 @@ body {
     font-size: 1.2rem;
     color: var(--color-text-light);
     background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
-    text-align: right;
+    text-align: center;
     direction: rtl;
     padding: 1rem 1.5rem;
-    border-bottom: 3px solid var(--color-accent);
+    border-bottom: none;
+    border-radius: 50px;
+    box-shadow: var(--shadow-base);
 }
 
 .dashboard-page .card .card-body {
@@ -76,14 +71,14 @@ body {
     flex-grow: 1;
 }
 
+/* --- Changes for button height --- */
 .dashboard-page .card .btn {
     display: flex;
-    flex-direction: row;
     justify-content: center;
-    align-items: baseline;
+    align-items: center; /* Vertically centers the text */
+    height: 55px; /* Changed: Sets a fixed height for all buttons */
     gap: 0.5rem;
     padding: 1rem 1.2rem;
-    min-height: 50px;
     font-size: 1.05rem;
     font-weight: 700;
     text-align: center;
@@ -142,7 +137,8 @@ body {
         font-size: 2rem;
     }
     .dashboard-page .card .btn {
-        min-height: auto;
+        height: auto;
+        min-height: 50px;
         padding: 0.8rem 1rem;
     }
     .dashboard-page .card .btn .card-count {
