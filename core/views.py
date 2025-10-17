@@ -10,7 +10,7 @@ def dashboard(request):
     role = getattr(getattr(request.user, "profile", None), "user_type", None)
     role_map = {
         "management": ("مدیریت", "core/dashboards/management_dashboard.html"),
-        "sales_manager": ("مدیر فروش", "core/dashboards/finance_dashboard.html"),
+        "sales_manager": ("مدیر فروش", "core/dashboards/sales_dashboard.html"),
         "finance_manager": ("مدیر مالی", "core/dashboards/finance_dashboard.html"),
         "factory_planner": ("واحد برنامه‌ریزی", "core/dashboards/factory_planner_dashboard.html"),
         "factory_manager": ("مدیر کارخانه", "core/dashboards/factory_manager_dashboard.html"),
