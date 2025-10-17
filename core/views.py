@@ -2,8 +2,9 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse, NoReverseMatch
 from orders.models import CustomerOrder, OrderStatus
-from overtime.models import OvertimeRequest
-from requests.models import Request
+from overtime.models import OvertimeRequest, OvertimeStatus
+from requests.models import Request, RequestStatus
+from planning.models import ProductionRequest, ProductionStatus
 
 @login_required
 def dashboard(request):
@@ -23,10 +24,16 @@ def dashboard(request):
         "pending_sales": CustomerOrder.objects.filter(status=OrderStatus.DRAFT).count(),
         "pending_finance": CustomerOrder.objects.filter(status=OrderStatus.SALES_APPROVED).count(),
         "mine": CustomerOrder.objects.filter(created_by=request.user).count(),
+        "pending_admin_overtime": OvertimeRequest.objects.filter(status=OvertimeStatus.ADMIN_PENDING).count(),
+        "pending_factory_production": ProductionRequest.objects.filter(status=ProductionStatus.PLANNING_SIGNED, factory_signed_by__isnull=True).count(),
+        "pending_factory_overtime": OvertimeRequest.objects.filter(status=OvertimeStatus.FACTORY_PENDING).count(),
+        "pending_factory_requests": Request.objects.filter(status=RequestStatus.CREATOR_APPROVED).count(),
+        "pending_planning": ProductionRequest.objects.filter(status=ProductionStatus.DRAFT).count(),
     }
     
     return render(request, template_name, {"role": role, "counts": counts, "role_fa": role_fa})
 
+    
 def home(request):
     if request.user.is_authenticated:
         return redirect("core:dashboard")

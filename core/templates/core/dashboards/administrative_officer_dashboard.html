@@ -1,40 +1,33 @@
 {% extends "core/dashboards/dashboard_base.html" %}
-
+{% load static %}
 {% block dashboard_title %}داشبورد مسئول اداری{% endblock %}
 
 {% block dashboard_cards %}
-    <div class="col-lg-4 col-md-6">
-        <div class="card shadow-sm h-100 border-0">
-            <div class="card-header bg-bsp-primary text-white text-center p-3">
-                <h5 class="mb-0">ایجاد عملیات جدید</h5>
-            </div>
-            <div class="card-body p-3 d-grid gap-3">
-                <a class="btn btn-primary w-100" href="{% url 'requests:request_create' %}">ثبت درخواست جدید</a>
-                <a class="btn btn-primary w-100" href="{% url 'overtime:overtime_list' %}">بخش اضافه کاری</a>
-            </div>
+<link rel="stylesheet" href="{% static 'css/dashboard_task_first.css' %}">
+<div class="task-first-dashboard">
+    <a href="{% url 'overtime:my_tasks' %}" class="primary-task-card">
+        <div class="task-icon"><i class="fas fa-user-clock"></i></div>
+        <div class="task-details">
+            <h3>وظایف در انتظار شما</h3>
+            <p>درخواست‌های اضافه‌کاری که برای تایید به شما ارجاع داده شده‌اند.</p>
+        </div>
+        <div class="task-counter"><span class="count">{{ counts.pending_admin_overtime }}</span><span>وظیفه</span></div>
+    </a>
+    <div class="actions-section">
+        <h3 class="section-title">اقدامات سریع</h3>
+        <div class="actions-grid">
+            <a href="{% url 'overtime:overtime_create' %}" class="action-button"><i class="fas fa-clock"></i><span>ثبت اضافه کاری</span></a>
+            <a href="{% url 'requests:request_create' %}" class="action-button"><i class="fas fa-file-alt"></i><span>ثبت درخواست جدید</span></a>
         </div>
     </div>
-    <div class="col-lg-4 col-md-6">
-        <div class="card shadow-sm h-100 border-0">
-            <div class="card-header bg-bsp-success text-white text-center p-3">
-                <h5 class="mb-0">وظایف و اقدام‌ها</h5>
-            </div>
-            <div class="card-body p-3 d-grid gap-3">
-                <a class="btn btn-success w-100" href="{% url 'overtime:overtime_list' %}">وظایف من - اضافه کاری</a>
-            </div>
+    <div class="lists-section">
+        <h3 class="section-title">پیگیری و مشاهده</h3>
+        <div class="list-container">
+            <a href="{% url 'overtime:overtime_list' %}" class="list-item"><i class="fas fa-history"></i><span>لیست کل اضافه کاری‌ها</span></a>
+            <a href="{% url 'requests:request_list' %}" class="list-item"><i class="fas fa-folder-open"></i><span>لیست درخواست‌های عمومی</span></a>
+            <a href="{% url 'orders:order_list' %}" class="list-item"><i class="fas fa-list-ul"></i><span>لیست کل سفارش‌ها</span></a>
+            <a href="{% url 'core:my_all_requests' %}" class="list-item"><i class="fas fa-user-check"></i><span>تمام درخواست‌های من</span></a>
         </div>
     </div>
-    <div class="col-lg-4 col-md-6">
-        <div class="card shadow-sm h-100 border-0">
-            <div class="card-header bg-bsp-secondary text-white text-center p-3">
-                <h5 class="mb-0">پیگیری و مشاهده</h5>
-            </div>
-            <div class="card-body p-3 d-grid gap-3">
-                <a class="btn btn-outline-secondary w-100" href="{% url 'requests:request_list' %}">لیست درخواست‌ها</a>
-                <a class="btn btn-outline-secondary w-100" href="{% url 'overtime:overtime_list' %}">لیست اضافه کاری</a>
-                <a class="btn btn-outline-secondary w-100" href="{% url 'orders:order_list' %}">همه سفارش‌ها</a>
-                <a class="btn btn-outline-info w-100 d-flex justify-content-center align-items-center" href="{% url 'core:my_all_requests' %}">لیست درخواست های من</a>
-            </div>
-        </div>
-    </div>
+</div>
 {% endblock %}
