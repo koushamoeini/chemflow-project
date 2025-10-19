@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>{% block title %}سامانه بیوسان پلیمر سمند{ % endblock %}</title>
+    <title>{ % block title %}سامانه بیوسان پلیمر سمند{ % endblock %}</title>
 
     <link href="https://cdn.jsdelivr.net/npm/vazirmatn@33.0.1/Vazirmatn-font-face.css" rel="stylesheet">
 
@@ -18,7 +18,7 @@
 <body>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'core:home' %}">  بیوسان پلیمر سمند</a>
+            <a class="navbar-brand" href="{% url 'core:home' %}"> بیوسان پلیمر سمند</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
                 <span class="navbar-toggler-icon"></span>
             </button>
