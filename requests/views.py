@@ -55,7 +55,6 @@ def request_queue(request, queue_type):
 
     tasks_qs = Request.objects.filter(status=config['status'])
     
-    # Check edit permission for each task
     for task in tasks_qs:
         task.user_can_edit = task.can_edit_by(request.user)
         
@@ -69,14 +68,13 @@ def request_queue(request, queue_type):
 def request_list(request):
     role = _role(request.user)
 
-    base_qs = Request.objects.select_related("created_by").order_by("-id")
+    base_qs = Request.objects.exclude(status=RequestStatus.DRAFT).select_related("created_by").order_by("-id")
 
     if role in ["management", "factory_manager"]:
         requests_qs = base_qs
     else:
         requests_qs = base_qs.filter(created_by=request.user)
 
-    # Check edit permission for each request
     for req in requests_qs:
         req.user_can_edit = req.can_edit_by(request.user)
 

@@ -61,13 +61,13 @@ def dashboard(request):
         total_tasks_count += ProductionRequest.objects.filter(production_q).count()
 
     general_q = Q()
-    general_q |= Q(created_by=request.user, status=RequestStatus.DRAFT)
     if role == 'factory_manager':
         general_q |= Q(status=RequestStatus.CREATOR_APPROVED)
-    if role == 'management':
+    elif role == 'management':
         general_q |= Q(status=RequestStatus.FACTORY_APPROVED)
     
-    total_tasks_count += GeneralRequest.objects.filter(general_q).distinct().count()
+    if general_q:
+        total_tasks_count += GeneralRequest.objects.filter(general_q).distinct().count()
     
     counts = {
         "total_tasks_count": total_tasks_count,
@@ -221,22 +221,22 @@ class MyTasksView(LoginRequiredMixin, ListView):
                 })
 
         general_q = Q()
-        general_q |= Q(created_by=user, status=RequestStatus.DRAFT)
         if role == 'factory_manager':
             general_q |= Q(status=RequestStatus.CREATOR_APPROVED)
-        if role == 'management':
+        elif role == 'management':
             general_q |= Q(status=RequestStatus.FACTORY_APPROVED)
 
-        general_tasks = GeneralRequest.objects.filter(general_q).distinct()
-        for task in general_tasks:
-            all_tasks.append({
-                'type': 'general',
-                'type_display': 'درخواست عمومی',
-                'title': f"درخواست {task.request_number}",
-                'status': task.get_status_display(),
-                'date': task.created_at,
-                'url': reverse('requests:request_detail', args=[task.pk])
-            })
+        if general_q:
+            general_tasks = GeneralRequest.objects.filter(general_q).distinct()
+            for task in general_tasks:
+                all_tasks.append({
+                    'type': 'general',
+                    'type_display': 'درخواست عمومی',
+                    'title': f"درخواست {task.request_number}",
+                    'status': task.get_status_display(),
+                    'date': task.created_at,
+                    'url': reverse('requests:request_detail', args=[task.pk])
+                })
 
         filter_type = self.request.GET.get('type')
         if filter_type:
@@ -264,7 +264,8 @@ class MyTasksView(LoginRequiredMixin, ListView):
         if role in ['administrative_officer', 'factory_manager', 'management']:
             available_filters['overtime'] = 'اضافه‌کاری'
         
-        available_filters['general'] = 'درخواست عمومی'
+        if role in ['factory_manager', 'management']:
+            available_filters['general'] = 'درخواست عمومی'
         
         context['available_filters'] = available_filters
         
