@@ -5,13 +5,16 @@
 {% block dashboard_cards %}
 <link rel="stylesheet" href="{% static 'css/dashboard_task_first.css' %}">
 <div class="task-first-dashboard">
-    <a href="{% url 'orders:pending_orders' 'finance' %}" class="primary-task-card">
-        <div class="task-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+    <a href="{% url 'core:my_all_tasks' %}" class="primary-task-card">
+        <div class="task-icon"><i class="fas fa-tasks"></i></div>
         <div class="task-details">
-            <h3>وظایف در انتظار شما</h3>
-            <p>سفارش‌هایی که برای تایید مالی به شما ارجاع داده شده‌اند.</p>
+            <h3>تمام وظایف من</h3>
+            <p>مشاهده و فیلتر کردن تمام کارهای در انتظار.</p>
         </div>
-        <div class="task-counter"><span class="count">{{ counts.pending_finance }}</span><span>وظیفه</span></div>
+        <div class="task-counter">
+            <span class="count">{{ counts.total_tasks_count }}</span>
+            <span>وظیفه</span>
+        </div>
     </a>
     <div class="actions-section">
         <h3 class="section-title">اقدامات</h3>
