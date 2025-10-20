@@ -6,12 +6,6 @@
 
     <h2 class="page-title text-center mb-4">جزئیات سفارش {{ order.order_number }}</h2>
 
-    {% if messages %}
-    {% for m in messages %}
-    <div class="alert alert-{{ m.tags }}">{{ m }}</div>
-    {% endfor %}
-    {% endif %}
-
     <div class="card mb-4 shadow-sm">
         <div class="card-body">
             <h5 class="card-title mb-3">اطلاعات مشتری</h5>
@@ -93,9 +87,7 @@
         </div>
     </div>
 
-    <div class="order-actions-container">
-        {% block action_buttons %}{% endblock %}
-    </div>
+    {% block action_buttons %}{% endblock %}
 
 </div>
 {% endblock %}
