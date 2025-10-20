@@ -6,21 +6,9 @@
 <link rel="stylesheet" href="{% static 'css/dashboard_task_first.css' %}">
 <div class="task-first-dashboard">
     <div class="top-tasks-grid">
-        <a href="{% url 'orders:my_tasks' %}" class="primary-task-card">
-            <div class="task-icon"><i class="fas fa-inbox"></i></div>
-            <div class="task-details">
-                <h3>وظایف فروش</h3>
-                <p>سفارش‌های در انتظار تایید فروش.</p>
-            </div>
-            <div class="task-counter"><span class="count">{{ counts.pending_sales }}</span><span>وظیفه</span></div>
-        </a>
-        <a href="{% url 'planning:my_tasks' %}" class="primary-task-card">
-            <div class="task-icon"><i class="fas fa-cogs"></i></div>
-            <div class="task-details">
-                <h3>وظایف تولید</h3>
-                <p>درخواست‌های تولید در انتظار تایید.</p>
-            </div>
-            <div class="task-counter"><span class="count">{{ counts.pending_planning }}</span><span>وظیفه</span></div>
+        <a href="{% url 'core:my_all_tasks' %}" class="btn btn-primary">
+            <i class="fas fa-tasks"></i>
+            مشاهده وظایف من
         </a>
     </div>
     <div class="actions-section">
