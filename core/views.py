@@ -249,4 +249,23 @@ class MyTasksView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['current_filter'] = self.request.GET.get('type', '')
+        
+        user = self.request.user
+        role = getattr(user.profile, "user_type", None)
+        
+        available_filters = {}
+
+        if role in ['sales_manager', 'finance_manager', 'management']:
+            available_filters['sales'] = 'فروش'
+
+        if role in ['factory_planner', 'factory_manager']:
+            available_filters['production'] = 'تولید'
+
+        if role in ['administrative_officer', 'factory_manager', 'management']:
+            available_filters['overtime'] = 'اضافه‌کاری'
+        
+        available_filters['general'] = 'درخواست عمومی'
+        
+        context['available_filters'] = available_filters
+        
         return context

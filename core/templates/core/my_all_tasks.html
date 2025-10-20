@@ -8,24 +8,35 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="m-0">وظایف من</h2>
         
-        <div class="btn-group" role="group" aria-label="Filter tasks">
-            <a href="{% url 'core:my_all_tasks' %}" class="btn {% if not current_filter %}btn-primary{% else %}btn-outline-primary{% endif %}">
-                همه
-            </a>
-            <a href="?type=sales" class="btn {% if current_filter == 'sales' %}btn-primary{% else %}btn-outline-primary{% endif %}">
-                فروش
-            </a>
-            <a href="?type=production" class="btn {% if current_filter == 'production' %}btn-primary{% else %}btn-outline-primary{% endif %}">
-                تولید
-            </a>
-            <a href="?type=overtime" class="btn {% if current_filter == 'overtime' %}btn-primary{% else %}btn-outline-primary{% endif %}">
-                اضافه‌کاری
-            </a>
-            <a href="?type=general" class="btn {% if current_filter == 'general' %}btn-primary{% else %}btn-outline-primary{% endif %}">
-                درخواست عمومی
-            </a>
+        <div class="dropdown filter-dropdown">
+            <button class="btn btn-primary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                {% if not current_filter %}
+                    فیلتر بر اساس نوع
+                {% elif current_filter == 'sales' %}
+                    فروش
+                {% elif current_filter == 'production' %}
+                    تولید
+                {% elif current_filter == 'overtime' %}
+                    اضافه‌کاری
+                {% elif current_filter == 'general' %}
+                    درخواست عمومی
+                {% else %}
+                    فیلتر
+                {% endif %}
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="filterDropdown">
+                <li><a class="dropdown-item {% if not current_filter %}active{% endif %}" href="{% url 'core:my_all_tasks' %}">
+                    همه وظایف
+                </a></li>
+                <li><hr class="dropdown-divider"></li>
+                {% for filter_key, filter_name in available_filters.items %}
+                    <li><a class="dropdown-item {% if current_filter == filter_key %}active{% endif %}" href="?type={{ filter_key }}">
+                        {{ filter_name }}
+                    </a></li>
+                {% endfor %}
+            </ul>
         </div>
-    </div>
+        </div>
 
     <div class="table-responsive">
         <table class="table table-hover align-middle">
