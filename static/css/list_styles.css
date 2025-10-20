@@ -11,10 +11,11 @@
     --radius: 0.8rem;
     --transition-speed: 0.2s;
 }
+
 body {
     background: linear-gradient(160deg, var(--color-bg-light), #e8f7ee);
 }
-/* --- Page Header --- */
+
 .container[dir="rtl"] h2 {
     color: var(--color-primary);
     font-weight: 800;
@@ -23,7 +24,6 @@ body {
     display: inline-block;
 }
 
-/* --- Themed Buttons --- */
 .container[dir="rtl"] .btn-primary {
     background-color: var(--color-primary);
     border-color: var(--color-primary);
@@ -40,7 +40,6 @@ body {
     transform: scale(1.05);
 }
 
-/* --- Table Styling --- */
 .table-responsive {
     border-radius: var(--radius);
     box-shadow: var(--shadow-base);
@@ -48,12 +47,11 @@ body {
 }
 
 .table {
-    background: #fffbe6;
+    background: var(--color-surface);
     margin-bottom: 0;
-    border-collapse: collapse; /* Changed for a cleaner look */
+    border-collapse: collapse;
 }
 
-/* --- Table Header (Themed) --- */
 .table thead.table-light th {
     background: var(--color-primary);
     color: var(--color-text-light);
@@ -72,32 +70,26 @@ body {
     text-align: center;
 }
 
-
-/* --- Table Body --- */
 .table tbody td {
-    padding: 1.2rem; /* Increased padding */
+    padding: 1.2rem;
     vertical-align: middle;
-    border: none; /* Removed cell borders */
+    border: none;
 }
 
-/* Typography focus */
 .table tbody td:nth-child(1),
 .table tbody td:nth-child(2) {
     font-weight: 600;
     color: var(--color-primary-dark);
 }
 
-/* Simple & clean hover effect */
 .table.table-hover tbody tr:hover {
     background-color: #f7fdf9;
 }
 
-/* Zebra-striping without borders */
 .table tbody tr:nth-of-type(even) {
     background-color: var(--color-bg-light);
 }
 
-/* --- Action Buttons in Table --- */
 .table .btn-sm {
     font-weight: 600;
     padding: 0.3rem 1rem;
@@ -117,34 +109,15 @@ body {
     transform: scale(1.05);
 }
 
-/* Themed secondary button */
 .table .btn-outline-secondary {
     color: var(--color-primary-dark);
     border-color: var(--color-border-soft);
 }
+
 .table .btn-outline-secondary:hover {
     background-color: var(--color-border-soft);
     border-color: var(--color-border-soft);
     color: var(--color-primary-dark);
-    transform: scale(1.05);
-}
-
-/* --- Empty State --- */
-.table tbody tr td[colspan="8"] {
-    padding: 2.5rem;
-    text-align: center;
-    font-weight: 500;
-    background-color: #f8f9fa;
-}
-/* --- Additional Themed Button Styles --- */
-.table .btn-success {
-    background-color: var(--color-primary);
-    border-color: var(--color-primary);
-    color: var(--color-text-light);
-}
-.table .btn-success:hover {
-    background-color: var(--color-primary-dark);
-    border-color: var(--color-primary-dark);
     transform: scale(1.05);
 }
 
@@ -153,28 +126,138 @@ body {
     border-color: var(--color-accent);
     color: var(--color-text);
 }
+
 .table .btn-warning:hover {
-    background-color: #ffcd3a; /* A slightly lighter yellow for hover */
+    background-color: #ffcd3a;
     border-color: #ffcd3a;
     transform: scale(1.05);
 }
 
-.table .btn-info {
-    background-color: var(--color-primary-dark);
-    border-color: var(--color-primary-dark);
-    color: var(--color-text-light);
-}
-.table .btn-info:hover {
-    background-color: #004422; /* A slightly lighter dark green */
-    border-color: #004422;
-    transform: scale(1.05);
-}
-
-/* --- More Robust Empty State --- */
-/* This rule replaces the old colspan="8" to work with any table */
 .table tbody tr td[colspan] {
     padding: 2.5rem;
     text-align: center;
     font-weight: 500;
     background-color: var(--color-surface);
+}
+
+.btn-group .btn {
+    font-weight: 500;
+    padding: 0.5rem 1.2rem;
+    transition: all var(--transition-speed) ease;
+}
+
+.btn-group .btn-outline-primary {
+    color: var(--color-primary);
+    border-color: var(--color-border-soft);
+}
+
+.btn-group .btn-outline-primary:hover {
+    background-color: var(--color-bg-light);
+    color: var(--color-primary-dark);
+}
+
+.badge {
+    padding: 0.5em 0.9em;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 50px;
+}
+
+.badge.bg-success {
+    background-color: var(--color-primary) !important;
+    color: var(--color-text-light) !important;
+}
+
+.badge.bg-info {
+    background-color: #2779bd !important;
+    color: var(--color-text-light) !important;
+}
+
+.badge.bg-warning {
+    background-color: var(--color-accent) !important;
+    color: var(--color-text) !important;
+}
+
+.badge.bg-secondary {
+    background-color: #6c757d !important;
+    color: var(--color-text-light) !important;
+}
+
+.pagination {
+    margin-top: 2rem;
+}
+
+.pagination .page-item .page-link {
+    color: var(--color-primary);
+    border: 1px solid var(--color-border-soft);
+    margin: 0 0.2rem;
+    border-radius: var(--radius);
+    transition: all var(--transition-speed) ease;
+}
+
+.pagination .page-item .page-link:hover {
+    background-color: var(--color-bg-light);
+    border-color: var(--color-primary);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-text-light);
+    box-shadow: var(--shadow-base);
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #adb5bd;
+    background-color: var(--color-surface);
+    border-color: var(--color-border-soft);
+}
+/* --- Filter Dropdown --- */
+.filter-dropdown .btn-primary {
+    background-color: var(--color-surface);
+    color: var(--color-primary-dark);
+    border-color: var(--color-border-soft);
+    font-weight: 700;
+    padding: 0.6rem 1.5rem;
+    border-radius: 50px;
+    transition: all var(--transition-speed) ease;
+}
+
+.filter-dropdown .btn-primary:hover,
+.filter-dropdown .btn-primary:focus {
+    background-color: var(--color-bg-light);
+    color: var(--color-primary-dark);
+    border-color: var(--color-primary);
+    box-shadow: none;
+}
+
+.filter-dropdown .dropdown-menu {
+    border-radius: var(--radius);
+    border: 1px solid var(--color-border-soft);
+    box-shadow: var(--shadow-base);
+    padding: 0.5rem 0;
+    text-align: right;
+    margin-top: 0.5rem !important;
+}
+
+.filter-dropdown .dropdown-item {
+    font-weight: 600;
+    color: var(--color-text);
+    padding: 0.5rem 1.5rem;
+    transition: all 0.1s ease;
+}
+
+.filter-dropdown .dropdown-item:hover {
+    background-color: var(--color-bg-light);
+    color: var(--color-primary);
+}
+
+.filter-dropdown .dropdown-item.active,
+.filter-dropdown .dropdown-item:active {
+    background-color: var(--color-primary);
+    color: var(--color-text-light);
+}
+
+.filter-dropdown .dropdown-divider {
+    border-top-color: var(--color-border-soft);
 }

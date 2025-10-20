@@ -6,23 +6,19 @@
 <link rel="stylesheet" href="{% static 'css/dashboard_task_first.css' %}">
 <div class="task-first-dashboard">
     <div class="top-tasks-grid">
-        <a href="{% url 'orders:my_tasks' %}" class="primary-task-card">
-            <div class="task-icon"><i class="fas fa-inbox"></i></div>
+        
+        <a href="{% url 'core:my_all_tasks' %}" class="primary-task-card">
+            <div class="task-icon"><i class="fas fa-tasks"></i></div>
             <div class="task-details">
-                <h3>وظایف فروش</h3>
-                <p>سفارش‌های در انتظار تایید فروش.</p>
+                <h3>تمام وظایف من</h3>
+                <p>مشاهده و فیلتر کردن تمام کارهای در انتظار.</p>
             </div>
-            <div class="task-counter"><span class="count">{{ counts.pending_sales }}</span><span>وظیفه</span></div>
-        </a>
-        <a href="{% url 'planning:my_tasks' %}" class="primary-task-card">
-            <div class="task-icon"><i class="fas fa-cogs"></i></div>
-            <div class="task-details">
-                <h3>وظایف تولید</h3>
-                <p>درخواست‌های تولید در انتظار تایید.</p>
+            <div class="task-counter">
+                <span class="count">{{ counts.total_tasks_count }}</span>
+                <span>وظیفه</span>
             </div>
-            <div class="task-counter"><span class="count">{{ counts.pending_planning }}</span><span>وظیفه</span></div>
         </a>
-    </div>
+        </div>
     <div class="actions-section">
         <h3 class="section-title">اقدامات سریع</h3>
         <div class="actions-grid">

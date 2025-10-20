@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/list_styles.css' %}">
+<div class="container" dir="rtl">
+    
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="m-0">وظایف من</h2>
+        
+        <div class="dropdown filter-dropdown">
+            <button class="btn btn-primary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                {% if not current_filter %}
+                    فیلتر بر اساس نوع
+                {% elif current_filter == 'sales' %}
+                    فروش
+                {% elif current_filter == 'production' %}
+                    تولید
+                {% elif current_filter == 'overtime' %}
+                    اضافه‌کاری
+                {% elif current_filter == 'general' %}
+                    درخواست عمومی
+                {% else %}
+                    فیلتر
+                {% endif %}
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="filterDropdown">
+                <li><a class="dropdown-item {% if not current_filter %}active{% endif %}" href="{% url 'core:my_all_tasks' %}">
+                    همه وظایف
+                </a></li>
+                <li><hr class="dropdown-divider"></li>
+                {% for filter_key, filter_name in available_filters.items %}
+                    <li><a class="dropdown-item {% if current_filter == filter_key %}active{% endif %}" href="?type={{ filter_key }}">
+                        {{ filter_name }}
+                    </a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>نوع وظیفه</th>
+                    <th>عنوان / شماره</th>
+                    <th>وضعیت فعلی</th>
+                    <th>تاریخ ایجاد</th>
+                    <th class="text-center">عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                <tr>
+                    <td>
+                        {% if task.type == 'sales' %}
+                            <span class="badge bg-success">{{ task.type_display }}</span>
+                        {% elif task.type == 'production' %}
+                            <span class="badge bg-info">{{ task.type_display }}</span>
+                        {% elif task.type == 'overtime' %}
+                            <span class="badge bg-warning text-dark">{{ task.type_display }}</span>
+                        {% elif task.type == 'general' %}
+                            <span class="badge bg-secondary">{{ task.type_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ task.title }}</td>
+                    <td>{{ task.status }}</td>
+                    <td>{{ task.date|date:"Y-m-d H:i" }}</td>
+                    <td class="text-center">
+                        <a href="{{ task.url }}" class="btn btn-outline-secondary btn-sm">
+                            نمایش
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted">شما هیچ وظیفه‌ی فعالی ندارید.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if is_paginated %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page=1">&laquo; اول</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}"> قبلی</a></li>
+            {% endif %}
+            
+            <li class="page-item active" aria-current="page">
+                <span class="page-link">صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}</span>
+            </li>
+            
+            {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">بعدی</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">آخر &raquo;</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+</div>
+{% endblock %}
