@@ -28,52 +28,57 @@ def dashboard(request):
     total_tasks_count = 0
     
     sales_q = Q()
-    if role in ['sales_manager', 'management']:
+    if role == 'sales_manager':
         sales_q |= Q(status=OrderStatus.DRAFT)
-    if role in ['finance_manager', 'management']:
+    elif role == 'finance_manager':
         sales_q |= Q(status=OrderStatus.SALES_APPROVED)
-    if role == 'management':
+    elif role == 'management':
         sales_q |= Q(status=OrderStatus.FINANCE_APPROVED)
-    sales_task_count = CustomerOrder.objects.filter(sales_q).count()
-    total_tasks_count += sales_task_count
+    
+    if sales_q:
+        total_tasks_count += CustomerOrder.objects.filter(sales_q).count()
 
     overtime_q = Q()
     if role == 'administrative_officer':
         overtime_q |= Q(status=OvertimeStatus.ADMIN_PENDING)
-    if role == 'factory_manager':
+    elif role == 'factory_manager':
         overtime_q |= Q(status=OvertimeStatus.FACTORY_PENDING)
-    if role == 'management':
+    elif role == 'management':
         overtime_q |= Q(status=OvertimeStatus.MANAGEMENT_PENDING)
-    overtime_task_count = OvertimeRequest.objects.filter(overtime_q).count()
-    total_tasks_count += overtime_task_count
+    
+    if overtime_q:
+        total_tasks_count += OvertimeRequest.objects.filter(overtime_q).count()
 
     production_q = Q()
-    if role in ['factory_planner', 'management']:
+    if role == 'factory_planner':
         production_q |= Q(status=ProductionStatus.DRAFT)
-    if role in ['factory_manager', 'management']:
+    elif role == 'factory_manager':
         production_q |= Q(status=ProductionStatus.PLANNING_SIGNED)
-    production_task_count = ProductionRequest.objects.filter(production_q).count()
-    total_tasks_count += production_task_count
+    elif role == 'management':
+        pass
+    
+    if production_q:
+        total_tasks_count += ProductionRequest.objects.filter(production_q).count()
 
     general_q = Q()
-    general_q |= Q(created_by=request.user, status=RequestStatus.DRAFT) 
+    general_q |= Q(created_by=request.user, status=RequestStatus.DRAFT)
     if role == 'factory_manager':
         general_q |= Q(status=RequestStatus.CREATOR_APPROVED)
     if role == 'management':
         general_q |= Q(status=RequestStatus.FACTORY_APPROVED)
-    general_task_count = Request.objects.filter(general_q).count()
-    total_tasks_count += general_task_count
+    
+    total_tasks_count += GeneralRequest.objects.filter(general_q).distinct().count()
     
     counts = {
-        "total_tasks_count": total_tasks_count, 
-        "pending_sales": sales_task_count,
+        "total_tasks_count": total_tasks_count,
+        "pending_sales": CustomerOrder.objects.filter(status=OrderStatus.DRAFT).count(),
         "pending_finance": CustomerOrder.objects.filter(status=OrderStatus.SALES_APPROVED).count(),
         "mine": CustomerOrder.objects.filter(created_by=request.user).count(),
         "pending_admin_overtime": OvertimeRequest.objects.filter(status=OvertimeStatus.ADMIN_PENDING).count(),
         "pending_factory_production": ProductionRequest.objects.filter(status=ProductionStatus.PLANNING_SIGNED, factory_signed_by__isnull=True).count(),
         "pending_factory_overtime": OvertimeRequest.objects.filter(status=OvertimeStatus.FACTORY_PENDING).count(),
-        "pending_factory_requests": Request.objects.filter(status=RequestStatus.CREATOR_APPROVED).count(),
-        "pending_planning": production_task_count,
+        "pending_factory_requests": GeneralRequest.objects.filter(status=RequestStatus.CREATOR_APPROVED).count(),
+        "pending_planning": ProductionRequest.objects.filter(status=ProductionStatus.DRAFT).count(),
     }
     
     return render(request, template_name, {"role": role, "counts": counts, "role_fa": role_fa})
@@ -156,11 +161,11 @@ class MyTasksView(LoginRequiredMixin, ListView):
         all_tasks = []
         
         sales_q = Q()
-        if role in ['sales_manager', 'management']:
+        if role == 'sales_manager':
             sales_q |= Q(status=OrderStatus.DRAFT)
-        if role in ['finance_manager', 'management']:
+        elif role == 'finance_manager':
             sales_q |= Q(status=OrderStatus.SALES_APPROVED)
-        if role == 'management':
+        elif role == 'management':
             sales_q |= Q(status=OrderStatus.FINANCE_APPROVED)
 
         if sales_q:
@@ -178,9 +183,9 @@ class MyTasksView(LoginRequiredMixin, ListView):
         overtime_q = Q()
         if role == 'administrative_officer':
             overtime_q |= Q(status=OvertimeStatus.ADMIN_PENDING)
-        if role == 'factory_manager':
+        elif role == 'factory_manager':
             overtime_q |= Q(status=OvertimeStatus.FACTORY_PENDING)
-        if role == 'management':
+        elif role == 'management':
             overtime_q |= Q(status=OvertimeStatus.MANAGEMENT_PENDING)
 
         if overtime_q:
@@ -196,10 +201,12 @@ class MyTasksView(LoginRequiredMixin, ListView):
                 })
 
         production_q = Q()
-        if role in ['factory_planner', 'management']:
+        if role == 'factory_planner':
             production_q |= Q(status=ProductionStatus.DRAFT)
-        if role in ['factory_manager', 'management']:
+        elif role == 'factory_manager':
             production_q |= Q(status=ProductionStatus.PLANNING_SIGNED)
+        elif role == 'management':
+            pass
 
         if production_q:
             production_tasks = ProductionRequest.objects.filter(production_q)
@@ -214,23 +221,22 @@ class MyTasksView(LoginRequiredMixin, ListView):
                 })
 
         general_q = Q()
-        general_q |= Q(created_by=user, status=RequestStatus.DRAFT) 
+        general_q |= Q(created_by=user, status=RequestStatus.DRAFT)
         if role == 'factory_manager':
             general_q |= Q(status=RequestStatus.CREATOR_APPROVED)
         if role == 'management':
             general_q |= Q(status=RequestStatus.FACTORY_APPROVED)
 
-        if general_q:
-            general_tasks = GeneralRequest.objects.filter(general_q)
-            for task in general_tasks:
-                all_tasks.append({
-                    'type': 'general',
-                    'type_display': 'درخواست عمومی',
-                    'title': f"درخواست {task.request_number}",
-                    'status': task.get_status_display(),
-                    'date': task.created_at,
-                    'url': reverse('requests:request_detail', args=[task.pk])
-                })
+        general_tasks = GeneralRequest.objects.filter(general_q).distinct()
+        for task in general_tasks:
+            all_tasks.append({
+                'type': 'general',
+                'type_display': 'درخواست عمومی',
+                'title': f"درخواست {task.request_number}",
+                'status': task.get_status_display(),
+                'date': task.created_at,
+                'url': reverse('requests:request_detail', args=[task.pk])
+            })
 
         filter_type = self.request.GET.get('type')
         if filter_type:
