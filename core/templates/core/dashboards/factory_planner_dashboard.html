@@ -23,11 +23,10 @@
     <div class="lists-section">
         <h3 class="section-title">پیگیری و مشاهده</h3>
         <div class="list-container">
+            <a href="{% url 'core:my_all_requests' %}" class="list-item"><i class="fas fa-user-check"></i><span>لیست درخواست‌های من</span></a>
              <a href="{% url 'planning:ready_orders' %}" class="list-item"><i class="fas fa-check-circle"></i><span>سفارش‌های آماده برنامه‌ریزی</span></a>
             <a href="{% url 'planning:prodreq_list' %}" class="list-item"><i class="fas fa-clipboard-list"></i><span>لیست درخواست‌های تولید</span></a>
-            <a href="{% url 'orders:order_list' %}" class="list-item"><i class="fas fa-list-ul"></i><span>لیست کل سفارش‌ها</span></a>
-            <a href="{% url 'requests:request_list' %}" class="list-item"><i class="fas fa-folder-open"></i><span>لیست درخواست‌های عمومی</span></a>
-            <a href="{% url 'core:my_all_requests' %}" class="list-item"><i class="fas fa-user-check"></i><span>تمام درخواست‌های من</span></a>
+            <a href="{% url 'orders:order_list' %}" class="list-item"><i class="fas fa-list-ul"></i><span>لیست سفارش‌ها</span></a>
         </div>
     </div>
 </div>
