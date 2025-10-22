@@ -34,6 +34,6 @@ RequestItemFormSet = inlineformset_factory(
     parent_model=Request,
     model=RequestItem,
     form=RequestItemForm,
-    extra=1,
+    extra=0,
     can_delete=True
 )

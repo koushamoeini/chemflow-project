@@ -94,6 +94,9 @@ hr.my-4 {
     width: 100%;
     border-collapse: collapse;
     border-style: hidden;
+    /* --- این خط اضافه شد --- */
+    /* این دستور عرض ستون‌ها را ثابت نگه می‌دارد */
+    table-layout: fixed; 
 }
 
 .table-bordered thead th {
@@ -114,8 +117,8 @@ hr.my-4 {
 
 .table-bordered input,
 .table-bordered select{
-    padding: 0.6rem; /* این مقدار را برای رسیدن به ارتفاع دلخواه تغییر دهید */
-    font-size: 0.95rem; /* کمی بزرگتر کردن فونت هم به زیبایی کمک می‌کند */
+    padding: 0.6rem;
+    font-size: 0.95rem;
     border-radius: 0.5rem;
     width: 100%;
     box-sizing: border-box;
@@ -202,19 +205,36 @@ hr.my-4 {
 .order-items-table th:nth-child(9), .order-items-table td:nth-child(9) { width: 5%;  }
 
 .bsp-prodreq-form-table th:nth-child(1), .bsp-prodreq-form-table td:nth-child(1) { width: 12%; }
-.bsp-prodreq-form-table th:nth-child(2), .bsp-prodreq-form-table td:nth-child(2) { width: 8%; }
+.bsp-prodreq-form-table th:nth-child(2), .bsp-prodreq-form-table td:nth-child(2) { width: 12%; } 
 .bsp-prodreq-form-table th:nth-child(3), .bsp-prodreq-form-table td:nth-child(3) { width: 10%; }
 .bsp-prodreq-form-table th:nth-child(4), .bsp-prodreq-form-table td:nth-child(4) { width: 12%; }
 .bsp-prodreq-form-table th:nth-child(5), .bsp-prodreq-form-table td:nth-child(5) { width: 15%; }
-.bsp-prodreq-form-table th:nth-child(6), .bsp-prodreq-form-table td:nth-child(6) { width: 35%; }
+.bsp-prodreq-form-table th:nth-child(6), .bsp-prodreq-form-table td:nth-child(6) { width: 31%; } 
 .bsp-prodreq-form-table th:nth-child(7), .bsp-prodreq-form-table td:nth-child(7) { width: 5%;  }
 
 .request-items-table th:nth-child(1), .request-items-table td:nth-child(1) { width: 20%; }
 .request-items-table th:nth-child(2), .request-items-table td:nth-child(2) { width: 20%; }
 .request-items-table th:nth-child(3), .request-items-table td:nth-child(3) { width: 55%; }
 .request-items-table th:nth-child(4), .request-items-table td:nth-child(4) { width: 5%;  }
-.order-items-table,
-.bsp-prodreq-form-table,
-.request-items-table {
-    min-height: 300px;
+
+/* تنظیم ارتفاع جدول درخواست تولید (نسخه با ارتفاع زیاد) */
+.bsp-prodreq-form-table td {
+    padding: 8px 6px !important; 
+    vertical-align: middle;
 }
+
+.bsp-prodreq-form-table .form-control,
+.bsp-prodreq-form-table .form-select {
+    height: 50px !important; 
+    padding: 0.5rem 0.75rem !important;
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
+}
+
+.bsp-prodreq-form-table input[type="checkbox"] {
+    height: 20px !important;
+    width: 20px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+

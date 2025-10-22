@@ -61,8 +61,13 @@
             </table>
         </div>
 
-        <table style="display: none;">
-            <tr id="empty-form" class="formset-row">
+        <!-- 
+          تغییر اصلی اینجا بود: 
+          به جای <table> و <tr> مخفی، از تگ <template> استفاده می‌کنیم.
+          آیدی آن را 'empty-form-template' می‌گذاریم تا با جاوا اسکریپت شما مطابقت داشته باشد.
+        -->
+        <template id="empty-form-template">
+            <tr class="formset-row">
                 {% with f=formset.empty_form %}
                 {{ f.id }}
                 <td>{{ f.product_name }}</td>
@@ -74,7 +79,7 @@
                 <td class="text-center">{% if formset.can_delete %}{{ f.DELETE }}{% endif %}</td>
                 {% endwith %}
             </tr>
-        </table>
+        </template>
 
 
         <div class="d-flex gap-2">
