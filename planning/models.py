@@ -19,7 +19,6 @@ class ProductionRequest(models.Model):
     request_date = models.DateField(auto_now_add=True)
     request_number = models.CharField(max_length=20, unique=True, editable=False) 
 
-    # approvals
     planning_signed_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name="prodreq_planning_signed")
     planning_signed_at = models.DateTimeField(null=True, blank=True)
 
@@ -37,7 +36,6 @@ class ProductionRequest(models.Model):
         return f"{self.request_number}"
 
     def _generate_request_number(self):
-        # ... (منطق تولید شماره درخواست حفظ شد) ...
         now = timezone.now()
         prefix = f"PR-{now.strftime('%Y%m')}-"
         with transaction.atomic():
@@ -54,7 +52,6 @@ class ProductionRequest(models.Model):
             self.request_number = self._generate_request_number()
         super().save(*args, **kwargs)
 
-    # ... (متدهای can_edit_by, can_sign_planning, can_sign_factory, can_cancel حفظ شد) ...
     def can_edit_by(self, user):
         if not getattr(user, "is_authenticated", False) or not hasattr(user, "profile"):
             return False
@@ -87,31 +84,25 @@ class ProductionRequest(models.Model):
 class ProductionItem(models.Model):
     request = models.ForeignKey(ProductionRequest, on_delete=models.CASCADE, related_name="items")
 
-    # فیلدها برای امکان خالی بودن در سطر دوم، blank=True شدند.
     product_name = models.CharField(max_length=200, verbose_name="نام محصول", blank=True)
     packaging_type = models.ForeignKey(
         PackagingType,
         on_delete=models.PROTECT,
-        verbose_name="نوع بسته‌بندی",
-        blank=True,
-        null=True
+        verbose_name="نوع بسته‌بندی"
     )
-    quantity = models.DecimalField(max_digits=12, decimal_places=3, default=Decimal("1.000"), verbose_name="مقدار", null=True, blank=True) # null=True هم برای DecimalField نیاز است
+    quantity = models.DecimalField(max_digits=12, decimal_places=3, default=Decimal("1.000"), verbose_name="مقدار", null=True, blank=True)
     unit = models.ForeignKey(
         Unit,
         on_delete=models.PROTECT,
-        verbose_name="واحد", 
-        blank=True,
-        null=True
+        verbose_name="واحد"
     )
     customer_name = models.CharField(max_length=200, verbose_name="نام مشتری", blank=True)
-    description = models.TextField(blank=True, verbose_name="توضیحات") # این فیلد قبلا blank=True بود.
+    description = models.TextField(blank=True, verbose_name="توضیحات")
 
     def __str__(self):
         return self.product_name
 
 class PlanningStatus(models.Model):
-    # ... (کلاس PlanningStatus حفظ شد) ...
     order = models.OneToOneField(
         'orders.CustomerOrder', 
         on_delete=models.CASCADE,
@@ -126,3 +117,4 @@ class PlanningStatus(models.Model):
 
     def __str__(self):
         return f"{self.order.order_number} - {'✅ Planned' if self.is_planned else '🟡 Ready'}"
+

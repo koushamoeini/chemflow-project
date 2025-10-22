@@ -6,19 +6,18 @@ class BaseProductionItemFormSet(BaseInlineFormSet):
     def clean(self):
         super().clean()
         
-        non_empty_forms = 0
+        valid_forms_count = 0
+        deleted_forms_count = 0
+        
         for form in self.forms:
             if self.can_delete and form.cleaned_data.get('DELETE'):
+                deleted_forms_count += 1
                 continue
             
-            product_name = form.cleaned_data.get('product_name')
-            quantity = form.cleaned_data.get('quantity')
-            
-            if product_name and quantity:
-                non_empty_forms += 1
-        
-        if non_empty_forms < self.min_num:
-            raise forms.ValidationError("لطفاً حداقل یک ردیف محصول را به طور کامل پر کنید.")
+            if form.is_valid() and form.has_changed():
+                valid_forms_count += 1
+
+
 
 class ProductionRequestForm(forms.ModelForm):
     class Meta:
@@ -57,17 +56,35 @@ class ProductionItemForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'نام مشتری'
             }),
-            'description': forms.TextInput(attrs={
+            'description': forms.Textarea(attrs={
                 'class': 'form-control',
-                'placeholder': 'توضیحات'
+                'placeholder': 'توضیحات',
+                'rows': 1  
             }),
         }
+        error_messages = {
+            'unit': {'required': "این فیلد لازم هست"},
+            'packaging_type': {'required': "این فیلد لازم هست"},
+            'product_name': {'required': "این فیلد لازم هست"},
+            'quantity': {'required': "این فیلد لازم هست"},
+        }
+
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
+        self.fields['unit'].empty_label = ""
+        self.fields['packaging_type'].empty_label = ""
+
         if not self.instance.pk:
             self.fields["quantity"].initial = None
+            
+        if self.errors:
+            for field_name in self.errors:
+                if field_name in self.fields:
+                    widget_class = self.fields[field_name].widget.attrs.get('class', '')
+                    if 'is-invalid' not in widget_class:
+                        self.fields[field_name].widget.attrs['class'] = widget_class + ' is-invalid'
             
 ProductionItemFormSet = inlineformset_factory(
     parent_model=ProductionRequest,
@@ -79,4 +96,3 @@ ProductionItemFormSet = inlineformset_factory(
     min_num=1,
     validate_min=True,
 )
-

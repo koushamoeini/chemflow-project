@@ -71,7 +71,7 @@ def prodreq_create(request):
                 formset.instance = req
                 formset.save()
             messages.success(
-                request, "درخواست تولید با موفقیت ثبت شد (پیش‌نویس).")
+                request,"درخواست تولید با موفقیت ثبت شد.")
             return redirect("planning:prodreq_detail", pk=req.pk) # اصلاح شده
         
         return render(request, "planning/prodreq_form.html", {"form": form, "formset": formset})

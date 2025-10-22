@@ -6,12 +6,6 @@
 <div class="container mt-4" dir="rtl">
     <h2 class="mb-4 text-center">{{ title|default:"ثبت / ویرایش درخواست تولید" }}</h2>
 
-    {% if messages %}
-    {% for m in messages %}
-    <div class="alert alert-{{ m.tags }}">{{ m }}</div>
-    {% endfor %}
-    {% endif %}
-
     <form method="post" class="card p-4 shadow-sm border-0" id="prodreq-form">
         {% csrf_token %}
 
@@ -47,36 +41,124 @@
                     <td>
                         {{ f.id }}
                         {{ f.product_name }}
+                        {% if f.product_name.errors %}
+                            <div class="field-error-tooltip">
+                                {% for error in f.product_name.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
                     </td>
-                    <td>{{ f.quantity }}{{ f.quantity.errors }}</td>
-                    <td>{{ f.unit }}{{ f.unit.errors }}</td>
-                    <td>{{ f.packaging_type }}{{ f.packaging_type.errors }}</td>
-                    <td>{{ f.customer_name }}{{ f.customer_name.errors }}</td>
-                    <td>{{ f.description }}{{ f.description.errors }}</td>
-                    <td class="text-center">{% if formset.can_delete %}{{ f.DELETE }}{% endif %}</td>
+                    <td>
+                        {{ f.quantity }}
+                        {% if f.quantity.errors %}
+                            <div class="field-error-tooltip">
+                                {% for error in f.quantity.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ f.unit }}
+                        {% if f.unit.errors %}
+                            <div class="field-error-tooltip">
+                                {% for error in f.unit.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ f.packaging_type }}
+                        {% if f.packaging_type.errors %}
+                            <div class="field-error-tooltip">
+                                {% for error in f.packaging_type.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ f.customer_name }}
+                        {% if f.customer_name.errors %}
+                            <div class="field-error-tooltip">
+                                {% for error in f.customer_name.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ f.description }}
+                        {% if f.description.errors %}
+                            <div class="field-error-tooltip">
+                                {% for error in f.description.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        {% if formset.can_delete %}
+                            <div style="display: none;">{{ f.DELETE }}</div>
+                            {% if not forloop.first %}
+                            <button type="button" class="delete-row-btn" title="حذف ردیف">&times;</button>
+                            {% endif %}
+                        {% endif %}
+                    </td>
                 </tr>
-                {% for err in f.non_form_errors %}<tr><td colspan="7" class="text-danger small">{{ err }}</td></tr>{% endfor %}
                 {% endfor %}
                 </tbody>
             </table>
         </div>
-
-        <!-- 
-          تغییر اصلی اینجا بود: 
-          به جای <table> و <tr> مخفی، از تگ <template> استفاده می‌کنیم.
-          آیدی آن را 'empty-form-template' می‌گذاریم تا با جاوا اسکریپت شما مطابقت داشته باشد.
-        -->
+        
         <template id="empty-form-template">
             <tr class="formset-row">
                 {% with f=formset.empty_form %}
                 {{ f.id }}
-                <td>{{ f.product_name }}</td>
-                <td>{{ f.quantity }}</td>
-                <td>{{ f.unit }}</td>
-                <td>{{ f.packaging_type }}</td>
-                <td>{{ f.customer_name }}</td>
-                <td>{{ f.description }}</td>
-                <td class="text-center">{% if formset.can_delete %}{{ f.DELETE }}{% endif %}</td>
+                <td>
+                    {{ f.product_name }}
+                    {% if f.product_name.errors %}
+                        <div class="field-error-tooltip">
+                            {% for error in f.product_name.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </td>
+                <td>
+                    {{ f.quantity }}
+                    {% if f.quantity.errors %}
+                        <div class="field-error-tooltip">
+                            {% for error in f.quantity.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </td>
+                <td>
+                    {{ f.unit }}
+                    {% if f.unit.errors %}
+                        <div class="field-error-tooltip">
+                            {% for error in f.unit.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </td>
+                <td>
+                    {{ f.packaging_type }}
+                    {% if f.packaging_type.errors %}
+                        <div class="field-error-tooltip">
+                            {% for error in f.packaging_type.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </td>
+                <td>
+                    {{ f.customer_name }}
+                    {% if f.customer_name.errors %}
+                        <div class="field-error-tooltip">
+                            {% for error in f.customer_name.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </td>
+                <td>
+                    {{ f.description }}
+                    {% if f.description.errors %}
+                        <div class="field-error-tooltip">
+                            {% for error in f.description.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </td>
+                <td class="text-center">
+                    {% if formset.can_delete %}
+                        <div style="display: none;">{{ f.DELETE }}</div>
+                        <button type="button" class="delete-row-btn" title="حذف ردیف">&times;</button>
+                    {% endif %}
+                </td>
                 {% endwith %}
             </tr>
         </template>
@@ -89,7 +171,7 @@
         <hr class="my-4">
 
         <div class="text-center mt-3">
-            <button type="submit" class="btn btn-success px-4">ثبت نهایی</button>
+            <button type="submit" class="btn btn-success px-4" id="submit-button">ثبت نهایی</button>
             <a href="{% url 'planning:prodreq_list' %}" class="btn btn-secondary px-4 ms-2">بازگشت</a>
         </div>
     </form>
