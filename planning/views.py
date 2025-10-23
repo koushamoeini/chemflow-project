@@ -72,7 +72,7 @@ def prodreq_create(request):
                 formset.save()
             messages.success(
                 request,"درخواست تولید با موفقیت ثبت شد.")
-            return redirect("planning:prodreq_detail", pk=req.pk) # اصلاح شده
+            return redirect("planning:prodreq_detail", pk=req.pk)
         
         return render(request, "planning/prodreq_form.html", {"form": form, "formset": formset})
 
@@ -97,7 +97,7 @@ def prodreq_update(request, pk):
                 form.save()
                 formset.save()
             messages.success(request, "درخواست به‌روزرسانی شد.")
-            return redirect("planning:prodreq_detail", pk=req.pk) # اصلاح شده
+            return redirect("planning:prodreq_detail", pk=req.pk)
 
         return render(request, "planning/prodreq_form.html", {"form": form, "formset": formset, "title": f"ویرایش {req.request_number}"})
 
@@ -222,9 +222,9 @@ def toggle_planning_status(request, pk):
         defaults={'is_planned': False, 'updated_by': request.user}
     )
     
-    # Toggle the status
     planning_status.is_planned = not planning_status.is_planned
     planning_status.updated_by = request.user
     planning_status.save()
     
     return redirect("planning:ready_orders")
+

@@ -2,11 +2,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const addButton = document.getElementById('add-item-btn');
     const tableBody = document.getElementById('form-container'); 
     const emptyFormTemplate = document.getElementById('empty-form-template'); 
-    const totalForms = document.querySelector('input[name$="TOTAL_FORMS"]');
-    const prefix = totalForms.name.replace('-TOTAL_FORMS', '');
+    const totalFormsInput = document.querySelector('input[name$="TOTAL_FORMS"]');
+    const prefix = totalFormsInput.name.replace('-TOTAL_FORMS', '');
     const form = document.getElementById('prodreq-form');
     const submitButton = document.getElementById('submit-button');
-
+    
     function cleanEmptyLabels(container) {
         container.querySelectorAll("select").forEach(sel => {
             if (sel.options.length > 0 && sel.options[0].value === "") {
@@ -14,8 +14,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-    
-    cleanEmptyLabels(document);
+
+    function updateDeleteButtons() {
+        const visibleRows = tableBody.querySelectorAll('tr.formset-row:not(.row-hidden)');
+        visibleRows.forEach((row, index) => {
+            const deleteButton = row.querySelector('.delete-row-btn');
+            if (deleteButton) {
+                deleteButton.style.display = visibleRows.length > 1 ? 'flex' : 'none';
+            }
+        });
+    }
     
     function hideDeletedRowsOnLoad() {
         tableBody.querySelectorAll('tr.formset-row').forEach(row => {
@@ -25,40 +33,53 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-
-    hideDeletedRowsOnLoad();
     
     function updateElementIndex(el, index) {
-        const idRegex = new RegExp('(' + prefix + '-\\d+|__prefix__)(-[a-zA-Z0-9_]+)');
-        const replacement = prefix + '-' + index + '$2';
+        const idRegex = new RegExp(prefix + '-\\d+-');
+        const nameRegex = new RegExp(prefix + '-\\d+-');
+        const newIdPrefix = prefix + '-' + index + '-';
+        const newNamePrefix = prefix + '-' + index + '-';
 
-        if (el.id) {
-            el.id = el.id.replace(idRegex, replacement);
+        if (el.id && el.id.startsWith(prefix + '-')) {
+             el.id = el.id.replace(idRegex, newIdPrefix);
         }
-        if (el.name) {
-            el.name = el.name.replace(idRegex, replacement);
+         if (el.name && el.name.startsWith(prefix + '-')) {
+             el.name = el.name.replace(nameRegex, newNamePrefix);
         }
+        
+        const prefixPlaceholderId = new RegExp('__prefix__');
+        const prefixPlaceholderName = new RegExp('__prefix__');
+         if (el.id && el.id.includes('__prefix__')) {
+             el.id = el.id.replace(prefixPlaceholderId, index);
+         }
+         if (el.name && el.name.includes('__prefix__')) {
+             el.name = el.name.replace(prefixPlaceholderName, index);
+         }
     }
-    
-    addButton.addEventListener('click', (e) => {
-        e.preventDefault();
 
-        let newIndex = parseInt(totalForms.value);
+    function addFormRow() {
+        let newIndex = parseInt(totalFormsInput.value);
         const newRow = emptyFormTemplate.content.cloneNode(true).querySelector('tr');
 
-        newRow.querySelectorAll('*').forEach(el => {
+        newRow.querySelectorAll('input, select, textarea, button, div[id*="__prefix__"]').forEach(el => {
             updateElementIndex(el, newIndex);
         });
 
         tableBody.appendChild(newRow);
-        totalForms.value = newIndex + 1;
+        totalFormsInput.value = newIndex + 1;
 
-        const deleteCheckbox = newRow.querySelector('input[type="checkbox"][name$="-DELETE"]');
-        if (deleteCheckbox) {
-            deleteCheckbox.checked = false;
+        const hiddenDeleteCheckbox = newRow.querySelector('input[type="checkbox"][name$="-DELETE"]');
+        if (hiddenDeleteCheckbox) {
+            hiddenDeleteCheckbox.checked = false;
         }
 
         cleanEmptyLabels(newRow);
+        updateDeleteButtons();
+    }
+    
+    addButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        addFormRow();
     });
 
     tableBody.addEventListener('click', (e) => {
@@ -73,6 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (deleteCheckbox) {
                 deleteCheckbox.checked = true;
                 row.classList.add('row-hidden');
+                updateDeleteButtons(); 
             }
         }
     });
@@ -85,4 +107,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    hideDeletedRowsOnLoad(); 
+    
+    if (tableBody.querySelectorAll('tr.formset-row:not(.row-hidden)').length === 0) {
+       addFormRow();
+    } else {
+        cleanEmptyLabels(document); 
+        updateDeleteButtons(); 
+    }
 });
+

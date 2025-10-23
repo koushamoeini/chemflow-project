@@ -198,11 +198,11 @@ hr.my-4 {
 .order-items-table th:nth-child(2), .order-items-table td:nth-child(2) { width: 12%; }
 .order-items-table th:nth-child(3), .order-items-table td:nth-child(3) { width: 10%; }
 .order-items-table th:nth-child(4), .order-items-table td:nth-child(4) { width: 10%; }
-.order-items-table th:nth-child(5), .order-items-table td:nth-child(5) { width: 8%; }
+.order-items-table th:nth-child(5), .order-items-table td:nth-child(5) { width: 13%; }
 .order-items-table th:nth-child(6), .order-items-table td:nth-child(6) { width: 13%; }
 .order-items-table th:nth-child(7), .order-items-table td:nth-child(7) { width: 10%; }
-.order-items-table th:nth-child(8), .order-items-table td:nth-child(8) { width: 40%;  }
-.order-items-table th:nth-child(9), .order-items-table td:nth-child(9) { width: 5%;  }
+.order-items-table th:nth-child(8), .order-items-table td:nth-child(8) { width: 25%;  }
+.order-items-table th:nth-child(9), .order-items-table td:nth-child(9) { width: 6%;  }
 
 .bsp-prodreq-form-table th:nth-child(1), .bsp-prodreq-form-table td:nth-child(1) { width: 12%; }
 .bsp-prodreq-form-table th:nth-child(2), .bsp-prodreq-form-table td:nth-child(2) { width: 12%; } 
@@ -282,7 +282,7 @@ hr.my-4 {
 
 .field-error-tooltip {
     position: absolute;
-    bottom: -7px;
+    bottom: -15px;
     right: 5px;
     z-index: 10;
     background-color: transparent;

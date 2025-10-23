@@ -5,18 +5,31 @@ from .models import ProductionRequest, ProductionItem
 class BaseProductionItemFormSet(BaseInlineFormSet):
     def clean(self):
         super().clean()
-        
-        valid_forms_count = 0
-        deleted_forms_count = 0
-        
-        for form in self.forms:
-            if self.can_delete and form.cleaned_data.get('DELETE'):
-                deleted_forms_count += 1
-                continue
-            
-            if form.is_valid() and form.has_changed():
-                valid_forms_count += 1
 
+        num_valid_forms = 0
+        num_forms_submitted = 0
+        num_non_deleted_forms = 0
+
+        for i, form in enumerate(self.forms):
+            if self.can_delete and form.cleaned_data.get('DELETE'):
+                continue
+
+            num_non_deleted_forms += 1
+
+            if form.has_changed():
+                num_forms_submitted += 1
+                if not form.errors: 
+                    num_valid_forms += 1
+        
+        if num_non_deleted_forms == 0 and len(self.forms) > 0 :
+            pass 
+        elif num_forms_submitted == 0 and num_non_deleted_forms > 0:
+            raise forms.ValidationError(
+                "لطفاً حداقل اطلاعات یک ردیف محصول را پر کنید.", code='no_forms_submitted'
+            )
+        
+        elif num_forms_submitted > 0 and num_valid_forms == 0:
+            pass
 
 
 class ProductionRequestForm(forms.ModelForm):
@@ -59,22 +72,22 @@ class ProductionItemForm(forms.ModelForm):
             'description': forms.Textarea(attrs={
                 'class': 'form-control',
                 'placeholder': 'توضیحات',
-                'rows': 1  
+                'rows': 1 
             }),
         }
         error_messages = {
-            'unit': {'required': "این فیلد لازم هست"},
-            'packaging_type': {'required': "این فیلد لازم هست"},
-            'product_name': {'required': "این فیلد لازم هست"},
-            'quantity': {'required': "این فیلد لازم هست"},
+            'unit': {'required': "این فیلد الزامی هست"},
+            'packaging_type': {'required': "این فیلد الزامی هست"},
+            'product_name': {'required': "این فیلد الزامی هست"},
+            'quantity': {'required': "این فیلد الزامی هست"},
         }
 
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        self.fields['unit'].empty_label = ""
-        self.fields['packaging_type'].empty_label = ""
+        self.fields['unit'].empty_label = "واحد را انتخاب کنید"
+        self.fields['packaging_type'].empty_label = "بسته‌بندی را انتخاب کنید"
 
         if not self.instance.pk:
             self.fields["quantity"].initial = None
@@ -90,9 +103,10 @@ ProductionItemFormSet = inlineformset_factory(
     parent_model=ProductionRequest,
     model=ProductionItem,
     form=ProductionItemForm,
-    formset=BaseProductionItemFormSet,
-    extra=0,
+    formset=BaseProductionItemFormSet, 
+    extra=0, 
     can_delete=True,
-    min_num=1,
-    validate_min=True,
+    min_num=0, 
+    validate_min=False, 
 )
+

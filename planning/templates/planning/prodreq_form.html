@@ -90,9 +90,7 @@
                     <td class="text-center">
                         {% if formset.can_delete %}
                             <div style="display: none;">{{ f.DELETE }}</div>
-                            {% if not forloop.first %}
                             <button type="button" class="delete-row-btn" title="حذف ردیف">&times;</button>
-                            {% endif %}
                         {% endif %}
                     </td>
                 </tr>
@@ -156,7 +154,7 @@
                 <td class="text-center">
                     {% if formset.can_delete %}
                         <div style="display: none;">{{ f.DELETE }}</div>
-                        <button type="button" class="delete-row-btn" title="حذف ردیف">&times;</button>
+                         <button type="button" class="delete-row-btn" title="حذف ردیف">&times;</button>
                     {% endif %}
                 </td>
                 {% endwith %}
@@ -165,14 +163,13 @@
 
 
         <div class="d-flex gap-2">
-            <button type="button" class="btn btn-outline-primary" id="add-item-btn">+ افزودن محصول</button>
+             <button type="button" class="btn btn-outline-primary" id="add-item-btn">+ افزودن محصول</button>
         </div>
 
         <hr class="my-4">
 
         <div class="text-center mt-3">
-            <button type="submit" class="btn btn-success px-4" id="submit-button">ثبت نهایی</button>
-            <a href="{% url 'planning:prodreq_list' %}" class="btn btn-secondary px-4 ms-2">بازگشت</a>
+            <button type="submit" class="btn btn-success px-4" id="submit-button">ثبت</button>
         </div>
     </form>
 </div>
@@ -180,3 +177,4 @@
 <script src="{% static 'js/prodreq_form.js' %}"></script>
 
 {% endblock %}
+
