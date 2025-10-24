@@ -27,7 +27,7 @@ class Customer(models.Model):
     customer_code = models.CharField(
         max_length=50, 
         verbose_name="کد مشتری",
-        unique=True,    
+        unique=True,     
         blank=False,    
         null=False      
     )

@@ -2,36 +2,48 @@ from django import forms
 from django.forms import inlineformset_factory, BaseInlineFormSet
 from .models import ProductionRequest, ProductionItem
 
-# --------------- ۱. کلاس پایه سفارشی برای FormSet ----------------
 class BaseProductionItemFormSet(BaseInlineFormSet):
     def clean(self):
         super().clean()
+
+        if not hasattr(self, '_errors'):
+            return
+
+        new_errors_list = []
+        non_deleted_forms = []
+
+        for i, form in enumerate(self.forms):
+            delete_field_name = f'{form.prefix}-DELETE'
+            is_marked_for_delete = self.data.get(delete_field_name) in ('on', 'True', 'true', '1')
+
+            if is_marked_for_delete:
+                new_errors_list.append({}) 
+                form.cleaned_data = {'DELETE': True} 
+            else:
+                non_deleted_forms.append(form)
+                if i < len(self._errors):
+                    new_errors_list.append(self._errors[i])
+                else:
+                    new_errors_list.append({}) 
+
+        self._errors = new_errors_list
         
-        # حذف فرم‌هایی که کاملاً خالی هستند و نباید ذخیره شوند
-        # (این کار را جنگو معمولا انجام می‌دهد، اما برای اعتبارسنجی نیاز به شمارش داریم)
-        non_empty_forms = 0
-        for form in self.forms:
-            # اگر فرم برای حذف علامت‌گذاری شده باشد، آن را نادیده بگیر
-            if self.can_delete and form.cleaned_data.get('DELETE'):
-                continue
-            
-            # بررسی کنید آیا فیلدهای کلیدی سطر پر شده‌اند یا نه
-            product_name = form.cleaned_data.get('product_name')
-            quantity = form.cleaned_data.get('quantity')
-            
-            if product_name and quantity:
-                 non_empty_forms += 1
-            
-        # اطمینان از اینکه حداقل تعداد مورد نیاز (min_num) پر شده باشد
-        # min_num=1 تنظیم شده، پس باید حداقل 1 فرم غیر خالی وجود داشته باشد.
-        if non_empty_forms < self.min_num:
-             # این خطا به دلیل وجود min_num=1 در factory ایجاد می‌شود، 
-             # اما این کد سفارشی مطمئن می‌شود که اگر کاربر سطر اول را خالی بگذارد،
-             # خطای واضح‌تری نمایش داده شود (اگرچه جنگو خودش خطا می‌دهد).
-             raise forms.ValidationError("لطفاً حداقل یک ردیف محصول را به طور کامل پر کنید.")
+        if any(self.errors):
+            return
+        
+        has_at_least_one_item = any(f.has_changed() for f in non_deleted_forms)
+        is_creating_new = not (self.instance and self.instance.pk)
+        
+        is_updating_and_deleting_all = False
+        if not is_creating_new:
+            if not non_deleted_forms and self.initial_forms:
+                 is_updating_and_deleting_all = True
+
+        if not has_at_least_one_item and not is_updating_and_deleting_all:
+            if is_creating_new:
+                raise forms.ValidationError("لطفاً حداقل اطلاعات یک ردیف محصول را پر کنید.")
 
 
-# --------------- ۲. تعریف فرم‌ها ----------------
 class ProductionRequestForm(forms.ModelForm):
     class Meta:
         model = ProductionRequest
@@ -71,32 +83,41 @@ class ProductionItemForm(forms.ModelForm):
             }),
             'description': forms.Textarea(attrs={
                 'class': 'form-control',
-                'rows': 1
+                'placeholder': 'توضیحات',
+                'rows': 1 
             }),
         }
+        error_messages = {
+            'unit': {'required': "این فیلد الزامی هست"},
+            'packaging_type': {'required': "این فیلد الزامی هست"},
+            'product_name': {'required': "این فیلد الزامی هست"},
+            'quantity': {'required': "این فیلد الزامی هست"},
+        }
+
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        # ۱. حذف گزینه خالی (---------) از Select Box ها
-        for name in ("packaging_type", "unit"):
-            # اگر این فیلد یک فیلد از نوع انتخاب (ChoiceField/CharField with choices) باشد
-            if isinstance(self.fields[name], forms.ChoiceField):
-                # تنظیم empty_label به None باعث حذف گزینه پیش‌فرض خالی می‌شود.
-                self.fields[name].empty_label = None 
-        
+        self.fields['unit'].empty_label = "واحد را انتخاب کنید"
+        self.fields['packaging_type'].empty_label = "بسته‌بندی را انتخاب کنید"
+
         if not self.instance.pk:
             self.fields["quantity"].initial = None
-            self.fields["packaging_type"].initial = None
-            self.fields["unit"].initial = None
+            
+        if self.errors:
+            for field_name in self.errors:
+                if field_name in self.fields:
+                    widget_class = self.fields[field_name].widget.attrs.get('class', '')
+                    if 'is-invalid' not in widget_class:
+                        self.fields[field_name].widget.attrs['class'] = widget_class + ' is-invalid'
             
 ProductionItemFormSet = inlineformset_factory(
     parent_model=ProductionRequest,
     model=ProductionItem,
     form=ProductionItemForm,
-    formset=BaseProductionItemFormSet, # <--- استفاده از کلاس پایه سفارشی
-    extra=1,                           # <--- کاهش تعداد سطرها به 2 (1 اجباری + 1 اضافی)
+    formset=BaseProductionItemFormSet, 
+    extra=0, 
     can_delete=True,
-    min_num=1,                         # <--- حفظ حداقل یک سطر اجباری
-    validate_min=True,
+    min_num=0, 
+    validate_min=False, 
 )

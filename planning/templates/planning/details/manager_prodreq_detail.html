@@ -1,6 +1,6 @@
 {% extends "planning/details/prodreq_detail.html" %}
 
-{% block action_buttons %}
-{% if can_sign_factory %}<a href="{% url 'planning:sign_factory' req.pk %}" class="btn btn-dark mx-1">تأیید کارخانه</a>{% endif %}
-{{ block.super }}
+{% block approve_button %}
+{% if can_sign_factory %}<a href="{% url 'planning:sign_factory' req.pk %}" class="btn btn-dark btn-sm">تأیید کارخانه</a>{% endif %}
 {% endblock %}
+

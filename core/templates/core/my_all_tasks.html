@@ -8,6 +8,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="m-0">وظایف من</h2>
         
+        {% if available_filters|length > 1 %}
         <div class="dropdown filter-dropdown">
             <button class="btn btn-primary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                 {% if not current_filter %}
@@ -36,7 +37,8 @@
                 {% endfor %}
             </ul>
         </div>
-        </div>
+        {% endif %}
+    </div>
 
     <div class="table-responsive">
         <table class="table table-hover align-middle">
@@ -53,15 +55,7 @@
                 {% for task in tasks %}
                 <tr>
                     <td>
-                        {% if task.type == 'sales' %}
-                            <span class="badge bg-success">{{ task.type_display }}</span>
-                        {% elif task.type == 'production' %}
-                            <span class="badge bg-info">{{ task.type_display }}</span>
-                        {% elif task.type == 'overtime' %}
-                            <span class="badge bg-warning text-dark">{{ task.type_display }}</span>
-                        {% elif task.type == 'general' %}
-                            <span class="badge bg-secondary">{{ task.type_display }}</span>
-                        {% endif %}
+                        <span class="badge">{{ task.type_display }}</span>
                     </td>
                     <td>{{ task.title }}</td>
                     <td>{{ task.status }}</td>

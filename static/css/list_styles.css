@@ -156,31 +156,14 @@ body {
     color: var(--color-primary-dark);
 }
 
-.badge {
-    padding: 0.5em 0.9em;
-    font-size: 0.8rem;
+.table .badge {
+    padding: 0.4em 0.8em;
+    font-size: 0.85rem; 
     font-weight: 600;
-    border-radius: 50px;
-}
-
-.badge.bg-success {
-    background-color: var(--color-primary) !important;
-    color: var(--color-text-light) !important;
-}
-
-.badge.bg-info {
-    background-color: #2779bd !important;
-    color: var(--color-text-light) !important;
-}
-
-.badge.bg-warning {
-    background-color: var(--color-accent) !important;
-    color: var(--color-text) !important;
-}
-
-.badge.bg-secondary {
-    background-color: #6c757d !important;
-    color: var(--color-text-light) !important;
+    border-radius: 4px; 
+    background-color: var(--color-border-soft); 
+    color: var(--color-primary-dark); 
+    border: none; 
 }
 
 .pagination {
@@ -212,7 +195,7 @@ body {
     background-color: var(--color-surface);
     border-color: var(--color-border-soft);
 }
-/* --- Filter Dropdown --- */
+
 .filter-dropdown .btn-primary {
     background-color: var(--color-surface);
     color: var(--color-primary-dark);

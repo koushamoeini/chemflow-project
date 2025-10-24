@@ -5,16 +5,21 @@
 {% block dashboard_cards %}
 <link rel="stylesheet" href="{% static 'css/dashboard_task_first.css' %}">
 <div class="task-first-dashboard">
-    <a href="{% url 'planning:my_tasks' %}" class="primary-task-card">
-        <div class="task-icon"><i class="fas fa-calendar-alt"></i></div>
+    
+    <a href="{% url 'core:my_all_tasks' %}" class="primary-task-card">
+        <div class="task-icon"><i class="fas fa-tasks"></i></div>
         <div class="task-details">
-            <h3>وظایف برنامه‌ریزی</h3>
-            <p>درخواست‌های تولیدی که برای تایید به شما ارجاع داده شده‌اند.</p>
+            <h3>تمام وظایف من</h3>
+            <p>مشاهده ی کارهای در انتظار</p>
         </div>
-        <div class="task-counter"><span class="count">{{ counts.pending_planning }}</span><span>وظیفه</span></div>
+        <div class="task-counter">
+            <span class="count">{{ counts.total_tasks_count }}</span>
+            <span>وظیفه</span>
+        </div>
     </a>
+    
     <div class="actions-section">
-        <h3 class="section-title">اقدامات سریع</h3>
+        <h3 class="section-title">اقدامات</h3>
         <div class="actions-grid">
             <a href="{% url 'planning:prodreq_create' %}" class="action-button"><i class="fas fa-industry"></i><span>درخواست تولید جدید</span></a>
             <a href="{% url 'requests:request_create' %}" class="action-button"><i class="fas fa-file-alt"></i><span>ثبت درخواست جدید</span></a>
@@ -23,11 +28,10 @@
     <div class="lists-section">
         <h3 class="section-title">پیگیری و مشاهده</h3>
         <div class="list-container">
+            <a href="{% url 'core:my_all_requests' %}" class="list-item"><i class="fas fa-user-check"></i><span>لیست درخواست‌های من</span></a>
              <a href="{% url 'planning:ready_orders' %}" class="list-item"><i class="fas fa-check-circle"></i><span>سفارش‌های آماده برنامه‌ریزی</span></a>
             <a href="{% url 'planning:prodreq_list' %}" class="list-item"><i class="fas fa-clipboard-list"></i><span>لیست درخواست‌های تولید</span></a>
-            <a href="{% url 'orders:order_list' %}" class="list-item"><i class="fas fa-list-ul"></i><span>لیست کل سفارش‌ها</span></a>
-            <a href="{% url 'requests:request_list' %}" class="list-item"><i class="fas fa-folder-open"></i><span>لیست درخواست‌های عمومی</span></a>
-            <a href="{% url 'core:my_all_requests' %}" class="list-item"><i class="fas fa-user-check"></i><span>تمام درخواست‌های من</span></a>
+            <a href="{% url 'orders:order_list' %}" class="list-item"><i class="fas fa-list-ul"></i><span>لیست سفارش‌ها</span></a>
         </div>
     </div>
 </div>

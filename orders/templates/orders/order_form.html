@@ -3,12 +3,19 @@
 {% block content %}
 
 <link rel="stylesheet" href="{% static 'css/form_styles.css' %}">
-<link rel="stylesheet" href="{% static 'css/order_style/auto_complete_styles.css' %}">
+<link rel="stylesheet" href="{% static 'css/auto_complete_styles.css' %}">
 
 <div class="container mt-4" dir="rtl">
-    <h2 class="mb-4 text-center">ثبت / ویرایش سفارش</h2>
+    <h2 class="mb-4 text-center">{{ title|default:"ثبت / ویرایش سفارش" }}</h2>
 
-    <form method="post" class="card p-4 shadow-sm border-0">
+    <form method="post" class="card p-4 shadow-sm border-0" id="order-form"
+          data-customer-autocomplete-url="{% url 'orders:customer_autocomplete' %}"
+          data-product-autocomplete-url="{% url 'orders:product_autocomplete' %}"
+          data-customer-name-id="{{ form.customer_name.id_for_label }}"
+          data-customer-code-id="{{ form.customer_code.id_for_label }}"
+          data-customer-phone-id="{{ form.customer_phone.id_for_label }}"
+          data-recipient-address-id="{{ form.recipient_address.id_for_label }}">
+        
         {% csrf_token %}
         <div class="row g-3 mb-4">
             <div class="col-md-6">
@@ -50,7 +57,12 @@
 
         <h5 class="mb-3">محصولات سفارش</h5>
         {{ formset.management_form }}
-        {{ formset.non_form_errors }}
+        
+        {% if formset.non_form_errors %}
+        <div class="alert alert-danger">
+            {{ formset.non_form_errors }}
+        </div>
+        {% endif %}
 
         <div class="table-responsive">
             <table class="table table-bordered align-middle order-items-table">
@@ -69,47 +81,99 @@
                 </thead>
                 <tbody id="form-container">
                 {% for f in formset.forms %}
-                <tr class="item-form">
+                <tr class="item-form formset-row">
                     <td class="position-relative">
                         {{ f.id }}
                         {{ f.product_code }}
+                        {% if f.product_code.errors %}<div class="field-error-tooltip">{% for error in f.product_code.errors %}{{ error }}{% endfor %}</div>{% endif %}
                     </td>
                     <td class="position-relative">
-                        {{ f.product_name }}{{ f.product_name.errors }}
+                        {{ f.product_name }}
+                        {% if f.product_name.errors %}<div class="field-error-tooltip">{% for error in f.product_name.errors %}{{ error }}{% endfor %}</div>{% endif %}
                         <div class="product-autocomplete-results autocomplete-results" style="display: none;"></div>
                     </td>
-                    <td>{{ f.quantity }}{{ f.quantity.errors }}</td>
-                    <td>{{ f.unit }}{{ f.unit.errors }}</td>
-                    <td>{{ f.packaging_type }}{{ f.packaging_type.errors }}</td>
-                    <td>{{ f.shipping_method }}{{ f.shipping_method.errors }}</td>
-                    <td>{{ f.batch_number }}{{ f.batch_number.errors }}</td>
-                    <td>{{ f.description }}{{ f.description.errors }}</td>
-                    <td class="text-center">{% if formset.can_delete %}{{ f.DELETE }}{% endif %}</td>
+                    <td>
+                        {{ f.quantity }}
+                        {% if f.quantity.errors %}<div class="field-error-tooltip">{% for error in f.quantity.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                    </td>
+                    <td>
+                        {{ f.unit }}
+                        {% if f.unit.errors %}<div class="field-error-tooltip">{% for error in f.unit.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                    </td>
+                    <td>
+                        {{ f.packaging_type }}
+                        {% if f.packaging_type.errors %}<div class="field-error-tooltip">{% for error in f.packaging_type.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                    </td>
+                    <td>
+                        {{ f.shipping_method }}
+                        {% if f.shipping_method.errors %}<div class="field-error-tooltip">{% for error in f.shipping_method.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                    </td>
+                    <td>
+                        {{ f.batch_number }}
+                        {% if f.batch_number.errors %}<div class="field-error-tooltip">{% for error in f.batch_number.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                    </td>
+                    <td>
+                        {{ f.description }}
+                        {% if f.description.errors %}<div class="field-error-tooltip">{% for error in f.description.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                    </td>
+                    <td class="text-center">
+                        {% if formset.can_delete %}
+                            <div style="display: none;">{{ f.DELETE }}</div>
+                            <button type="button" class="delete-row-btn" title="حذف ردیف">&times;</button>
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
                 </tbody>
             </table>
         </div>
 
-        <table style="display: none;">
-            <tr id="empty-form" class="item-form">
-                {{ formset.empty_form.id }}
+        <template id="empty-form-template">
+            <tr class="item-form formset-row">
+                {% with f=formset.empty_form %}
+                {{ f.id }}
                 <td class="position-relative">
-                    {{ formset.empty_form.product_code }}
+                    {{ f.product_code }}
+                    {% if f.product_code.errors %}<div class="field-error-tooltip">{% for error in f.product_code.errors %}{{ error }}{% endfor %}</div>{% endif %}
                 </td>
                 <td class="position-relative">
-                    {{ formset.empty_form.product_name }}
+                    {{ f.product_name }}
+                    {% if f.product_name.errors %}<div class="field-error-tooltip">{% for error in f.product_name.errors %}{{ error }}{% endfor %}</div>{% endif %}
                     <div class="product-autocomplete-results autocomplete-results" style="display: none;"></div>
                 </td>
-                <td>{{ formset.empty_form.quantity }}</td>
-                <td>{{ formset.empty_form.unit }}</td>
-                <td>{{ formset.empty_form.packaging_type }}</td>
-                <td>{{ formset.empty_form.shipping_method }}</td>
-                <td>{{ formset.empty_form.batch_number }}</td>
-                <td>{{ formset.empty_form.description }}</td>
-                <td class="text-center">{% if formset.can_delete %}{{ formset.empty_form.DELETE }}{% endif %}</td>
+                <td>
+                    {{ f.quantity }}
+                    {% if f.quantity.errors %}<div class="field-error-tooltip">{% for error in f.quantity.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                </td>
+                <td>
+                    {{ f.unit }}
+                    {% if f.unit.errors %}<div class="field-error-tooltip">{% for error in f.unit.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                </td>
+                <td>
+                    {{ f.packaging_type }}
+                    {% if f.packaging_type.errors %}<div class_attr="field-error-tooltip">{% for error in f.packaging_type.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                </td>
+                <td>
+                    {{ f.shipping_method }}
+                    {% if f.shipping_method.errors %}<div class="field-error-tooltip">{% for error in f.shipping_method.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                </td>
+                <td>
+                    {{ f.batch_number }}
+                    {% if f.batch_number.errors %}<div class="field-error-tooltip">{% for error in f.batch_number.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                </td>
+                <td>
+                    {{ f.description }}
+                    {% if f.description.errors %}<div class="field-error-tooltip">{% for error in f.description.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                </td>
+                <td class="text-center">
+                    {% if formset.can_delete %}
+                        <div style="display: none;">{{ f.DELETE }}</div>
+                         <button type="button" class="delete-row-btn" title="حذف ردیف">&times;</button>
+                    {% endif %}
+                </td>
+                {% endwith %}
             </tr>
-        </table>
+        </template>
 
         <div class="d-flex gap-2">
             <button type="button" id="add-item-btn" class="btn btn-outline-primary">+ افزودن محصول</button>
@@ -117,82 +181,12 @@
 
         <hr class="my-4">
         <div class="text-center mt-3">
-            <button type="submit" name="save_order" class="btn btn-success px-4">ثبت نهایی</button>
-            {% url 'orders:order_list' as back_url %}
-            <a href="{{ back_url|default:'#' }}" class="btn btn-secondary px-4 ms-2">بازگشت</a>
+            <button type="submit" name="save_order" id="submit-button" class="btn btn-success px-4">ثبت سفارش</button>
         </div>
     </form>
 </div>
 
 <script src="{% static 'js/order_form.js' %}"></script>
 <script src="{% static 'js/universal_autocomplete.js' %}"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // Initialize select elements
-        document.querySelectorAll("select").forEach(sel => {
-            if (sel.options.length > 0 && sel.options[0].value === "") {
-                sel.options[0].text = "";
-            }
-        });
-
-        // Initialize Customer Autocomplete
-        const customerAutocomplete = new UniversalAutocomplete({
-            triggerInputs: [
-                document.getElementById('{{ form.customer_name.id_for_label }}'),
-                document.getElementById('{{ form.customer_code.id_for_label }}')
-            ],
-            updateInputs: [
-                { element: document.getElementById('{{ form.customer_name.id_for_label }}'), field: 'name' },
-                { element: document.getElementById('{{ form.customer_code.id_for_label }}'), field: 'code' },
-                { element: document.getElementById('{{ form.customer_phone.id_for_label }}'), field: 'phone' },
-                { element: document.getElementById('{{ form.recipient_address.id_for_label }}'), field: 'address' }
-            ],
-            resultsContainer: document.getElementById('autocomplete-results'),
-            url: '{% url "orders:customer_autocomplete" %}',
-            displayTemplate: (customer) => `
-                <div><strong>${customer.code || 'بدون کد'}</strong></div>
-                <div>${customer.name}</div>
-                <div class="small text-muted">${customer.phone}</div>
-            `
-        });
-
-        // Initialize Product Autocomplete for all existing rows
-        function initializeProductAutocomplete() {
-            document.querySelectorAll('.item-form').forEach(row => {
-                const productNameInput = row.querySelector('input[name$="-product_name"]');
-                const productCodeInput = row.querySelector('input[name$="-product_code"]');
-                const resultsContainer = row.querySelector('.product-autocomplete-results');
-
-                if (productNameInput && productCodeInput && resultsContainer) {
-                    new UniversalAutocomplete({
-                        triggerInputs: [productNameInput, productCodeInput],
-                        updateInputs: [
-                            { element: productNameInput, field: 'name' },
-                            { element: productCodeInput, field: 'code' }
-                        ],
-                        resultsContainer: resultsContainer,
-                        url: '{% url "orders:product_autocomplete" %}',
-                        displayTemplate: (product) => `
-                            <div><strong>${product.code}</strong></div>
-                            <div>${product.name}</div>
-                        `
-                    });
-                }
-            });
-        }
-
-        // Initialize product autocomplete for existing rows
-        initializeProductAutocomplete();
-
-        // Re-initialize product autocomplete when new rows are added
-        const addButton = document.getElementById('add-item-btn');
-        if (addButton) {
-            addButton.addEventListener('click', function() {
-                setTimeout(() => {
-                    initializeProductAutocomplete();
-                }, 100);
-            });
-        }
-    });
-</script>
 {% endblock %}
+

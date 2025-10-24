@@ -9,15 +9,13 @@ from django.db.models import Q
 
 from .forms import CustomerOrderForm, OrderItemFormSet
 from .models import CustomerOrder, OrderStatus, Product, Customer
-from .utils import require_password
+from core.utils import require_password
 
 def _get_user_role(user):
-    """Helper to safely get user role."""
     return getattr(getattr(user, "profile", None), "user_type", None)
 
 @login_required
 def order_list(request):
-    """Displays a list of all orders, filtered by user role."""
     role = _get_user_role(request.user)
     
     base_qs = CustomerOrder.objects.select_related("created_by").order_by("-id")
@@ -27,7 +25,6 @@ def order_list(request):
     else:
         orders_list = base_qs.filter(created_by=request.user)
     
-    # Add edit permission flag to each order for the template
     for order in orders_list:
         order.user_can_edit = order.is_editable(request.user)
 
@@ -41,7 +38,6 @@ def order_list(request):
 
 @login_required
 def order_create(request):
-    """Handles the creation of a new order."""
     if request.method == "POST":
         form = CustomerOrderForm(request.POST, request=request)
         formset = OrderItemFormSet(request.POST, prefix='items')
@@ -65,7 +61,6 @@ def order_create(request):
 
 @login_required
 def order_update(request, pk):
-    """Handles updating an existing order."""
     order = get_object_or_404(CustomerOrder, pk=pk)
     
     if not order.is_editable(request.user):
@@ -92,7 +87,6 @@ def order_update(request, pk):
 
 @login_required
 def order_detail(request, pk):
-    """Displays the details of a single order, rendering different templates based on role."""
     order = get_object_or_404(CustomerOrder.objects.prefetch_related("items"), pk=pk)
     role = _get_user_role(request.user)
     
@@ -106,19 +100,17 @@ def order_detail(request, pk):
     context = {
         "order": order,
         "role": role,
-        "can_edit": order.is_editable(request.user), # Using the correct method
+        "can_edit": order.is_editable(request.user),
         "can_approve_sales": order.can_approve_sales(request.user),
         "can_approve_finance": order.can_approve_finance(request.user),
         "can_approve_management": order.can_approve_management(request.user),
-        "can_cancel": order.can_cancel(request.user),
+        "can_cancel": order.is_editable(request.user),
     }
     return render(request, template_name, context)
 
-# --- Refactored Approval and Pending Views ---
 
 @require_password
 def approve_order(request, pk, approval_type):
-    """A single view to handle all types of approvals."""
     order = get_object_or_404(CustomerOrder, pk=pk)
     
     approval_map = {
@@ -164,7 +156,6 @@ def approve_order(request, pk, approval_type):
 
 @login_required
 def pending_orders(request, queue_type):
-    """A single view to handle all pending queues."""
     role = _get_user_role(request.user)
     
     queue_map = {
@@ -195,7 +186,6 @@ def pending_orders(request, queue_type):
         
     orders_list = CustomerOrder.objects.filter(status=config['status']).select_related("created_by").order_by("-id")
     
-    # Add edit permission flag to each order
     for order in orders_list:
         order.user_can_edit = order.is_editable(request.user)
         
@@ -205,7 +195,6 @@ def pending_orders(request, queue_type):
 
 @login_required
 def my_tasks(request):
-    """Redirects user to their relevant pending queue."""
     role = _get_user_role(request.user)
     
     role_map = {
@@ -215,7 +204,6 @@ def my_tasks(request):
     }
     
     if role in role_map:
-        # Map role to queue_type
         queue_type = role.replace('_manager', '')
         return redirect(role_map[role], queue_type=queue_type)
         
@@ -226,8 +214,9 @@ def my_tasks(request):
 @login_required
 def cancel_order(request, pk):
     order = get_object_or_404(CustomerOrder, pk=pk)
-    if not order.can_cancel(request.user):
-        messages.error(request, "اجازه لغو این سفارش را ندارید.")
+    
+    if not order.is_editable(request.user):
+        messages.warning(request, "امکان لغو این سفارش برای شما وجود ندارد (چون قابل ویرایش نیست).")
         return redirect("orders:order_details", pk=order.pk)
 
     if request.method == "POST":
@@ -246,8 +235,6 @@ def cancel_order(request, pk):
     
     return HttpResponseForbidden("درخواست نامعتبر است.")
 
-
-# --- Autocomplete Views (No changes needed) ---
 
 def customer_autocomplete(request):
     query = request.GET.get('q', '')

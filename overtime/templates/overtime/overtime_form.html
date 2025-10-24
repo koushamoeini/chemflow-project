@@ -7,12 +7,17 @@
 <div class="container mt-4" dir="rtl">
     <h2 class="mb-4 text-center">{{ title|default:"ثبت درخواست اضافه کاری" }}</h2>
 
-    <form method="post" class="card p-4 shadow-sm border-0">
+    <form method="post" class="card p-4 shadow-sm border-0" id="overtime-form">
         {% csrf_token %}
 
         <h5 class="mb-3">اطلاعات پرسنل</h5>
         {{ formset.management_form }}
-        {{ formset.non_form_errors }}
+        
+        {% if formset.non_form_errors %}
+        <div class="alert alert-danger">
+            {{ formset.non_form_errors }}
+        </div>
+        {% endif %}
 
         <div class="table-responsive">
             <table class="table table-bordered align-middle overtime-items-table">
@@ -28,35 +33,73 @@
                 </thead>
                 <tbody id="form-container">
                 {% for f in formset.forms %}
-                <tr class="item-form">
+                <tr class="item-form formset-row">
                     <td>
                         {{ f.id }}
-                        {{ f.employee_name }}{{ f.employee_name.errors }}
+                        {{ f.employee_name }}
+                        {% if f.employee_name.errors %}<div class="field-error-tooltip">{% for error in f.employee_name.errors %}{{ error }}{% endfor %}</div>{% endif %}
                     </td>
-                    <td>{{ f.department }}{{ f.department.errors }}</td>
-                    <td>{{ f.start_time }}{{ f.start_time.errors }}</td>
-                    <td>{{ f.end_time }}{{ f.end_time.errors }}</td>
-                    <td>{{ f.reason }}{{ f.reason.errors }}</td>
-                    <td class="text-center">{% if formset.can_delete %}{{ f.DELETE }}{% endif %}</td>
+                    <td>
+                        {{ f.department }}
+                        {% if f.department.errors %}<div class="field-error-tooltip">{% for error in f.department.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                    </td>
+                    <td>
+                        {{ f.start_time }}
+                        {% if f.start_time.errors %}<div class="field-error-tooltip">{% for error in f.start_time.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                    </td>
+                    <td>
+                        {{ f.end_time }}
+                        {% if f.end_time.errors %}<div class="field-error-tooltip">{% for error in f.end_time.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                    </td>
+                    <td>
+                        {{ f.reason }}
+                        {% if f.reason.errors %}<div class="field-error-tooltip">{% for error in f.reason.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                    </td>
+                    <td class="text-center">
+                        {% if formset.can_delete %}
+                            <div style="display: none;">{{ f.DELETE }}</div>
+                            <button type="button" class="delete-row-btn" title="حذف ردیف">&times;</button>
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
                 </tbody>
             </table>
         </div>
 
-        <table style="display: none;">
-            <tr id="empty-form" class="item-form">
+        <template id="empty-form-template">
+            <tr class="item-form formset-row">
+                {% with f=formset.empty_form %}
                 <td>
-                    {{ formset.empty_form.id }}
-                    {{ formset.empty_form.employee_name }}
+                    {{ f.id }}
+                    {{ f.employee_name }}
+                    {% if f.employee_name.errors %}<div class="field-error-tooltip">{% for error in f.employee_name.errors %}{{ error }}{% endfor %}</div>{% endif %}
                 </td>
-                <td>{{ formset.empty_form.department }}</td>
-                <td>{{ formset.empty_form.start_time }}</td>
-                <td>{{ formset.empty_form.end_time }}</td>
-                <td>{{ formset.empty_form.reason }}</td>
-                <td class="text-center">{% if formset.can_delete %}{{ formset.empty_form.DELETE }}{% endif %}</td>
+                <td>
+                    {{ f.department }}
+                    {% if f.department.errors %}<div class="field-error-tooltip">{% for error in f.department.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                </td>
+                <td>
+                    {{ f.start_time }}
+                    {% if f.start_time.errors %}<div class="field-error-tooltip">{% for error in f.start_time.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                </td>
+                <td>
+                    {{ f.end_time }}
+                    {% if f.end_time.errors %}<div class="field-error-tooltip">{% for error in f.end_time.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                </td>
+                <td>
+                    {{ f.reason }}
+                    {% if f.reason.errors %}<div class="field-error-tooltip">{% for error in f.reason.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                </td>
+                <td class="text-center">
+                    {% if formset.can_delete %}
+                        <div style="display: none;">{{ f.DELETE }}</div>
+                        <button type="button" class="delete-row-btn" title="حذف ردیف">&times;</button>
+                    {% endif %}
+                </td>
+                {% endwith %}
             </tr>
-        </table>
+        </template>
 
         <div class="d-flex gap-2">
             <button type="button" id="add-item-btn" class="btn btn-outline-primary">+ افزودن پرسنل</button>
@@ -64,25 +107,11 @@
 
         <hr class="my-4">
         <div class="text-center mt-3">
-            <button type="submit" name="save_request" class="btn btn-success px-4">ثبت نهایی</button>
-            <a href="{% url 'overtime:overtime_list' %}" class="btn btn-secondary px-4 ms-2">بازگشت</a>
+            <button type="submit" name="save_request" id="submit-button" class="btn btn-success px-4">ثبت</button>
         </div>
     </form>
 </div>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const addButton = document.getElementById('add-item-btn');
-        const totalForms = document.getElementById('id_items-TOTAL_FORMS');
-        const formContainer = document.getElementById('form-container');
-        const emptyForm = document.getElementById('empty-form').innerHTML;
+<script src="{% static 'js/overtime_form.js' %}"></script>
 
-        addButton.addEventListener('click', function() {
-            const formCount = parseInt(totalForms.value);
-            const newForm = emptyForm.replace(/__prefix__/g, formCount);
-            formContainer.insertAdjacentHTML('beforeend', newForm);
-            totalForms.value = formCount + 1;
-        });
-    });
-</script>
 {% endblock %}

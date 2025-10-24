@@ -1,16 +1,18 @@
 from django.db import models
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
 
 class RequestType(models.Model):
     name = models.CharField(max_length=100, verbose_name="نوع درخواست")
     is_active = models.BooleanField(default=True, verbose_name="فعال")
     display_order = models.IntegerField(default=0, verbose_name="ترتیب نمایش")
-    
+
     class Meta:
         verbose_name = "نوع درخواست"
         verbose_name_plural = "انواع درخواست"
         ordering = ["display_order", "name"]
-    
+
     def __str__(self):
         return self.name
 
@@ -18,12 +20,12 @@ class CostCenter(models.Model):
     name = models.CharField(max_length=100, verbose_name="مرکز هزینه")
     is_active = models.BooleanField(default=True, verbose_name="فعال")
     display_order = models.IntegerField(default=0, verbose_name="ترتیب نمایش")
-    
+
     class Meta:
         verbose_name = "مرکز هزینه"
         verbose_name_plural = "مراکز هزینه"
         ordering = ["display_order", "name"]
-    
+
     def __str__(self):
         return self.name
 
@@ -54,33 +56,51 @@ class Request(models.Model):
         return self.request_number
 
     def can_edit_by(self, user):
+        if not hasattr(user, 'profile'):
+            return False
         user_type = getattr(user.profile, "user_type", None)
 
-        if self.status == RequestStatus.CANCELED or self.is_completed:
+        if self.status in [RequestStatus.CANCELED, RequestStatus.MANAGEMENT_APPROVED]:
             return False
-
-        if user == self.created_by:
-            return self.status in [RequestStatus.DRAFT, RequestStatus.CREATOR_APPROVED, RequestStatus.FACTORY_APPROVED]
-
-        if user_type == "factory_manager":
-            return self.status in [RequestStatus.CREATOR_APPROVED, RequestStatus.FACTORY_APPROVED]
 
         if user_type == "management":
             return True
+        elif user_type == "factory_manager":
+            return self.status in [RequestStatus.DRAFT, RequestStatus.CREATOR_APPROVED, RequestStatus.FACTORY_APPROVED]
+        elif user == self.created_by:
+             return self.status in [RequestStatus.DRAFT, RequestStatus.CREATOR_APPROVED]
 
         return False
 
 
     def can_cancel(self, user):
-        return self.status not in [RequestStatus.CANCELED]
+        if not hasattr(user, 'profile'):
+            return False
+        user_type = getattr(user.profile, "user_type", None)
+
+        if self.status in [RequestStatus.CANCELED, RequestStatus.MANAGEMENT_APPROVED]:
+            return False
+
+        if user_type == "management":
+            return True
+        elif user_type == "factory_manager":
+            return self.status in [RequestStatus.DRAFT, RequestStatus.CREATOR_APPROVED, RequestStatus.FACTORY_APPROVED]
+        elif user == self.created_by:
+             return self.status in [RequestStatus.DRAFT, RequestStatus.CREATOR_APPROVED]
+
+        return False
 
     def can_approve_creator(self, user):
         return user == self.created_by and self.status == RequestStatus.DRAFT
 
     def can_approve_factory(self, user):
+        if not hasattr(user, 'profile'):
+            return False
         return user.profile.user_type == 'factory_manager' and self.status == RequestStatus.CREATOR_APPROVED
 
     def can_approve_management(self, user):
+        if not hasattr(user, 'profile'):
+            return False
         return user.profile.user_type == 'management' and self.status == RequestStatus.FACTORY_APPROVED
 
 class RequestItem(models.Model):
@@ -91,3 +111,4 @@ class RequestItem(models.Model):
 
     def __str__(self):
         return f"Item for Request {self.request.request_number} ({self.request_type})"
+

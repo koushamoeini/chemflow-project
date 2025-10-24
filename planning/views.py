@@ -1,4 +1,4 @@
-from orders.utils import require_password
+from core.utils import require_password
 from django.http import HttpResponseForbidden
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
@@ -71,8 +71,8 @@ def prodreq_create(request):
                 formset.instance = req
                 formset.save()
             messages.success(
-                request, "درخواست تولید با موفقیت ثبت شد (پیش‌نویس).")
-            return redirect("planning:prodreq_detail", pk=req.pk) # اصلاح شده
+                request,"درخواست تولید با موفقیت ثبت شد.")
+            return redirect("planning:prodreq_detail", pk=req.pk)
         
         return render(request, "planning/prodreq_form.html", {"form": form, "formset": formset})
 
@@ -97,7 +97,7 @@ def prodreq_update(request, pk):
                 form.save()
                 formset.save()
             messages.success(request, "درخواست به‌روزرسانی شد.")
-            return redirect("planning:prodreq_detail", pk=req.pk) # اصلاح شده
+            return redirect("planning:prodreq_detail", pk=req.pk)
 
         return render(request, "planning/prodreq_form.html", {"form": form, "formset": formset, "title": f"ویرایش {req.request_number}"})
 
@@ -120,6 +120,7 @@ def prodreq_detail(request, pk):
         
     ctx = {
         "req": req,
+        "role": role,
         "can_edit": req.can_edit_by(request.user),
         "can_sign_planning": req.can_sign_planning(request.user),
         "can_sign_factory": req.can_sign_factory(request.user),
@@ -140,7 +141,7 @@ def sign_planning(request, pk):
     req.planning_signed_at = timezone.now()
     req.save()
     messages.success(request, "تأیید برنامه‌ریزی ثبت شد.")
-    return redirect("core:dashboard")
+    return redirect("planning:prodreq_detail", pk=req.pk)
 
 
 @require_password
@@ -155,7 +156,26 @@ def sign_factory(request, pk):
     req.factory_signed_at = timezone.now()
     req.save()
     messages.success(request, "تأیید کارخانه ثبت شد.")
-    return redirect("core:dashboard")
+    return redirect("planning:prodreq_detail", pk=req.pk)
+
+
+@require_password
+def cancel_prodreq(request, pk):
+    req = get_object_or_404(ProductionRequest, pk=pk)
+
+    if not req.can_cancel(request.user):
+        messages.error(
+            request, "شما اجازه لغو این درخواست را ندارید یا وضعیت درخواست مجاز نیست."
+        )
+        return redirect("planning:prodreq_detail", pk=req.pk)
+
+    req.status = ProductionStatus.CANCELED
+    req.canceled_by = request.user
+    req.canceled_at = timezone.now()
+    req.save()
+    
+    messages.success(request, "درخواست تولید با موفقیت لغو شد.")
+    return redirect("planning:prodreq_detail", pk=req.pk)
 
 
 @login_required
@@ -222,7 +242,6 @@ def toggle_planning_status(request, pk):
         defaults={'is_planned': False, 'updated_by': request.user}
     )
     
-    # Toggle the status
     planning_status.is_planned = not planning_status.is_planned
     planning_status.updated_by = request.user
     planning_status.save()

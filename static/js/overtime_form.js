@@ -3,10 +3,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const tableBody = document.getElementById('form-container'); 
     const emptyFormTemplate = document.getElementById('empty-form-template'); 
     const totalFormsInput = document.querySelector('input[name$="TOTAL_FORMS"]');
-    const prefix = totalFormsInput.name.replace('-TOTAL_FORMS', '');
-    const form = document.getElementById('prodreq-form');
+    const form = document.getElementById('overtime-form');
     const submitButton = document.getElementById('submit-button');
     
+    if (!addButton || !tableBody || !emptyFormTemplate || !totalFormsInput || !form) {
+        console.error("One or more required formset elements are missing.");
+        return;
+    }
+
+    const prefix = totalFormsInput.name.replace('-TOTAL_FORMS', '');
+
     function cleanEmptyLabels(container) {
         container.querySelectorAll("select").forEach(sel => {
             if (sel.options.length > 0 && sel.options[0].value === "") {
@@ -117,4 +123,3 @@ document.addEventListener('DOMContentLoaded', () => {
         updateDeleteButtons(); 
     }
 });
-

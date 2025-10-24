@@ -9,7 +9,7 @@
         <div class="task-icon"><i class="fas fa-tasks"></i></div>
         <div class="task-details">
             <h3>تمام وظایف من</h3>
-            <p>مشاهده و فیلتر کردن تمام کارهای در انتظار.</p>
+            <p>مشاهده ی کارهای در انتظار</p>
         </div>
         <div class="task-counter">
             <span class="count">{{ counts.total_tasks_count }}</span>
@@ -25,9 +25,8 @@
     <div class="lists-section">
         <h3 class="section-title">پیگیری و مشاهده</h3>
         <div class="list-container">
+            <a href="{% url 'core:my_all_requests' %}" class="list-item"><i class="fas fa-history"></i><span>لیست درخواست‌های من</span></a>
             <a href="{% url 'orders:order_list' %}" class="list-item"><i class="fas fa-list-ul"></i><span>لیست کل سفارش‌ها</span></a>
-            <a href="{% url 'requests:request_list' %}" class="list-item"><i class="fas fa-folder-open"></i><span>لیست درخواست‌های عمومی</span></a>
-            <a href="{% url 'core:my_all_requests' %}" class="list-item"><i class="fas fa-history"></i><span>تمام درخواست‌های من</span></a>
         </div>
     </div>
 </div>

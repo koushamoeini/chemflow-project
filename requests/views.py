@@ -1,15 +1,16 @@
 from decimal import ROUND_HALF_EVEN
 from django.db.models.query import resolve_callables
-from orders.utils import require_password
+from core.utils import require_password
 from django.http import HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import transaction
-from django.forms import inlineformset_factory
+
 from django.utils import timezone
 from django.contrib.auth import authenticate
-from .forms import RequestForm, RequestItemForm
+
+from .forms import RequestForm, RequestItemFormSet
 from .models import Request, RequestItem, RequestStatus
 from .utils import get_next_request_number
 
@@ -22,17 +23,17 @@ def my_tasks(request):
 
     if role == "factory_manager":
         return redirect("requests:request_queue", queue_type='factory')
-    
+
     if role == "management":
         return redirect("requests:request_queue", queue_type='management')
-    
+
     messages.info(request, "هیچ وظیفه معلقی برای نقش شما تعریف نشده است.")
     return redirect("requests:request_list")
 
 @login_required
 def request_queue(request, queue_type):
     role = _role(request.user)
-    
+
     queue_map = {
         'factory': {
             'allowed_roles': ["factory_manager", "management"],
@@ -54,11 +55,10 @@ def request_queue(request, queue_type):
         return HttpResponseForbidden("شما دسترسی به این صف را ندارید.")
 
     tasks_qs = Request.objects.filter(status=config['status'])
-    
-    # Check edit permission for each task
+
     for task in tasks_qs:
         task.user_can_edit = task.can_edit_by(request.user)
-        
+
     context = {
         'requests': tasks_qs,
         'title': config['title']
@@ -69,14 +69,13 @@ def request_queue(request, queue_type):
 def request_list(request):
     role = _role(request.user)
 
-    base_qs = Request.objects.select_related("created_by").order_by("-id")
+    base_qs = Request.objects.exclude(status=RequestStatus.DRAFT).select_related("created_by").order_by("-id")
 
     if role in ["management", "factory_manager"]:
         requests_qs = base_qs
     else:
         requests_qs = base_qs.filter(created_by=request.user)
 
-    # Check edit permission for each request
     for req in requests_qs:
         req.user_can_edit = req.can_edit_by(request.user)
 
@@ -90,84 +89,60 @@ def request_list(request):
 
 @login_required
 def request_create(request):
-    total_forms = 0
-    if request.method == "POST" and "form-TOTAL_FORMS" in request.POST:
-        try:
-            total_forms = int(request.POST.get("form-TOTAL_FORMS", 0))
-        except ValueError:
-            total_forms = 0
-    
-    extra_rows = 1
-    if "add_item" in request.POST:
-        extra_rows = total_forms + 1
-
-    DynamicRequestItemFormSet = inlineformset_factory(
-        Request, 
-        RequestItem,
-        form=RequestItemForm, 
-        extra=extra_rows, 
-        can_delete=True, 
-        min_num=1, 
-        validate_min=True,
-    )
-
     if request.method == "POST":
         form = RequestForm(request.POST)
-        formset = DynamicRequestItemFormSet(request.POST)
+        formset = RequestItemFormSet(request.POST)
 
-        if "save_request" in request.POST:
-            if form.is_valid() and formset.is_valid():
-                with transaction.atomic():
-                    new_request = form.save(commit=False)
-                    new_request.created_by = request.user
-                    new_request.request_number = get_next_request_number()
-                    new_request.save()
-                    
-                    formset.instance = new_request
-                    formset.save()
-                
-                messages.success(request, "درخواست با موفقیت ثبت شد.")
-                return redirect("requests:request_detail", pk=new_request.pk)
+        is_form_valid = form.is_valid()
+        is_formset_valid = formset.is_valid() 
 
+        if is_form_valid and is_formset_valid:
+            with transaction.atomic():
+                new_request = form.save(commit=False)
+                new_request.created_by = request.user
+                new_request.request_number = get_next_request_number()
+                new_request.save()
+
+                formset.instance = new_request
+                formset.save()
+
+            messages.success(request, "درخواست با موفقیت ثبت شد.")
+            return redirect("requests:request_detail", pk=new_request.pk)
+        else:
             return render(request, "requests/request_form.html", {"form": form, "formset": formset, "title": "ثبت درخواست جدید"})
-        
-        return render(request, "requests/request_form.html", {"form": form, "formset": formset, "title": "ثبت درخواست جدید"})
 
-    else:
+    else: # GET request
         form = RequestForm()
-        formset = DynamicRequestItemFormSet()
+        formset = RequestItemFormSet()
 
     return render(request, "requests/request_form.html", {"form": form, "formset": formset, "title": "ثبت درخواست جدید"})
+
 
 @login_required
 def request_update(request, pk):
     request_obj = get_object_or_404(Request, pk=pk)
-    
+
     if not request_obj.can_edit_by(request.user):
         messages.warning(request, "امکان ویرایش این درخواست برای شما وجود ندارد.")
         return redirect("requests:request_detail", pk=request_obj.pk)
-    
-    RequestItemFormSet = inlineformset_factory(
-        Request, RequestItem,
-        form=RequestItemForm, extra=0,
-        can_delete=True, min_num=1, validate_min=True
-    )
 
     if request.method == "POST":
         form = RequestForm(request.POST, instance=request_obj)
         formset = RequestItemFormSet(request.POST, instance=request_obj)
 
-        if "save_request" in request.POST:
-            if form.is_valid() and formset.is_valid():
-                with transaction.atomic():
-                    form.save()
-                    formset.save()
-                messages.success(request, "درخواست با موفقیت به‌روزرسانی شد.")
-                return redirect("requests:request_detail", pk=request_obj.pk)
-            
+        is_form_valid = form.is_valid()
+        is_formset_valid = formset.is_valid() 
+
+        if is_form_valid and is_formset_valid:
+            with transaction.atomic():
+                form.save()
+                formset.save()
+            messages.success(request, "درخواست با موفقیت به‌روزرسانی شد.")
+            return redirect("requests:request_detail", pk=request_obj.pk)
+        else:
             return render(request, "requests/request_form.html", {"form": form, "formset": formset, "title": f"ویرایش {request_obj.request_number}"})
 
-    else:
+    else: # GET request
         form = RequestForm(instance=request_obj)
         formset = RequestItemFormSet(instance=request_obj)
 
@@ -176,26 +151,43 @@ def request_update(request, pk):
 @login_required
 def request_detail(request, pk):
     request_obj = get_object_or_404(Request.objects.prefetch_related("items"), pk=pk)
-    role = _role(request.user)
+    user = request.user
+    role = _role(user)
+    is_creator = request_obj.created_by == user
 
-    if request_obj.created_by == request.user:
-        role = "creator"
+    can_approve_creator_flag = request_obj.can_approve_creator(user)
+    can_approve_factory_flag = request_obj.can_approve_factory(user)
+    can_approve_management_flag = request_obj.can_approve_management(user)
 
-    template_map = {
-        "creator": "requests/details/creator_request_details.html",
-        "factory_manager": "requests/details/factory_manager_request_details.html",
-        "management": "requests/details/management_request_details.html",
-    }
-    template_name = template_map.get(role, "requests/details/read_only_request_details.html")
+    creator_template = "requests/details/creator_request_details.html"
+    factory_manager_template = "requests/details/factory_manager_request_details.html"
+    management_template = "requests/details/management_request_details.html"
+    read_only_template = "requests/details/read_only_request_details.html"
+
+    template_name = read_only_template 
+
+    if is_creator and can_approve_creator_flag:
+        template_name = creator_template
+    elif role == 'factory_manager' and can_approve_factory_flag:
+        template_name = factory_manager_template
+    elif role == 'management' and can_approve_management_flag:
+        template_name = management_template
+    elif role == 'factory_manager': 
+        template_name = factory_manager_template
+    elif role == 'management': 
+        template_name = management_template
+    elif is_creator: 
+        template_name = creator_template 
 
     context = {
         "request_obj": request_obj,
         "role": role,
-        "can_edit": request_obj.can_edit_by(request.user),
-        "can_cancel": request_obj.can_cancel(request.user),
-        "can_approve_creator": request_obj.can_approve_creator(request.user),
-        "can_approve_factory": request_obj.can_approve_factory(request.user),
-        "can_approve_management": request_obj.can_approve_management(request.user),
+        "is_creator": is_creator,
+        "can_edit": request_obj.can_edit_by(user),
+        "can_cancel": request_obj.can_cancel(user),
+        "can_approve_creator": can_approve_creator_flag,
+        "can_approve_factory": can_approve_factory_flag,
+        "can_approve_management": can_approve_management_flag,
     }
 
     return render(request, template_name, context)
@@ -248,7 +240,7 @@ def cancel_request(request, pk):
 
     if request.method == "POST":
         if not authenticate(username=request.user.username, password=request.POST.get("confirm_password", "")):
-            messages.error(request, "برای لغو، وارد کردن رمز عبور الزامی است.")
+            messages.error(request, "برای لغو، وارد کردن رمز عبور صحیح الزامی است.")
             return redirect("requests:request_detail", pk=request_obj.pk)
 
         reason = request.POST.get("cancel_reason", "").strip()
@@ -260,4 +252,5 @@ def cancel_request(request, pk):
         messages.success(request, "درخواست با موفقیت لغو شد.")
         return redirect("requests:request_detail", pk=request_obj.pk)
 
-    return HttpResponseForbidden("درخواست نامعتبر است.")
+    messages.error(request, "درخواست لغو نامعتبر است (باید POST باشد).")
+    return redirect("requests:request_detail", pk=request_obj.pk)

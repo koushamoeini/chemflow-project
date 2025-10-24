@@ -5,7 +5,7 @@
 
 <div class="container" dir="rtl">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="m-0">درخواست‌های تولید</h2>
+        <h2 class="m-0">{% if title %}{{ title }}{% else %}درخواست‌های تولید{% endif %}</h2>
 
         {% if can_create_prodreq %}
         <a href="{% url 'planning:prodreq_create' %}" class="btn btn-primary">درخواست جدید</a>
@@ -33,14 +33,10 @@
                 <td class="text-center d-flex gap-1 justify-content-center">
                     <a class="btn btn-sm btn-outline-secondary" href="{% url 'planning:prodreq_detail' r.pk %}">نمایش</a>
 
-                    {% if is_management %}
-                    <a class="btn btn-sm btn-outline-warning" href="{% url 'planning:prodreq_update' r.pk %}">ویرایش</a>
-                    {% elif is_factory_manager %}
-                    <a class="btn btn-sm btn-outline-warning" href="{% url 'planning:prodreq_update' r.pk %}">ویرایش</a>
-                    {% elif is_factory_planner and r.created_by_id == request.user.id %}
-                    {% if r.status == "draft" or r.status == "planning_signed" %}
-                    <a class="btn btn-sm btn-outline-warning" href="{% url 'planning:prodreq_update' r.pk %}">ویرایش</a>
-                    {% endif %}
+                    {% if r.status != "factory_signed" and r.status != "canceled" %}
+                        {% if role == "management" or role == "factory_manager" or role == "factory_planner" %}
+                        <a class="btn btn-sm btn-outline-warning" href="{% url 'planning:prodreq_update' r.pk %}">ویرایش</a>
+                        {% endif %}
                     {% endif %}
                 </td>
             </tr>
@@ -54,3 +50,4 @@
     </div>
 </div>
 {% endblock %}
+

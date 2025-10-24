@@ -14,6 +14,7 @@
     --bsp-focus-shadow: 0 0 0 0.2rem rgba(255, 195, 0, 0.3);
     --bsp-transition: all 0.3s ease-in-out;
     --color-bg-light: #f3f7f4;
+    --bs-danger-rgb: 220, 53, 69;
 }
 body {
     background: linear-gradient(160deg, var(--color-bg-light), #e8f7ee);
@@ -94,6 +95,7 @@ hr.my-4 {
     width: 100%;
     border-collapse: collapse;
     border-style: hidden;
+    table-layout: fixed; 
 }
 
 .table-bordered thead th {
@@ -107,15 +109,16 @@ hr.my-4 {
 
 .table-bordered tbody tr td {
     padding: 0.75rem 0.5rem;
-    vertical-align: middle;
+    vertical-align: middle; 
     text-align: right;
     border: 1px solid #f0f0f0;
+    position: relative;
 }
 
 .table-bordered input,
 .table-bordered select{
-    padding: 0.6rem; /* این مقدار را برای رسیدن به ارتفاع دلخواه تغییر دهید */
-    font-size: 0.95rem; /* کمی بزرگتر کردن فونت هم به زیبایی کمک می‌کند */
+    padding: 0.6rem;
+    font-size: 0.95rem;
     border-radius: 0.5rem;
     width: 100%;
     box-sizing: border-box;
@@ -195,26 +198,103 @@ hr.my-4 {
 .order-items-table th:nth-child(2), .order-items-table td:nth-child(2) { width: 12%; }
 .order-items-table th:nth-child(3), .order-items-table td:nth-child(3) { width: 10%; }
 .order-items-table th:nth-child(4), .order-items-table td:nth-child(4) { width: 10%; }
-.order-items-table th:nth-child(5), .order-items-table td:nth-child(5) { width: 8%; }
+.order-items-table th:nth-child(5), .order-items-table td:nth-child(5) { width: 13%; }
 .order-items-table th:nth-child(6), .order-items-table td:nth-child(6) { width: 13%; }
 .order-items-table th:nth-child(7), .order-items-table td:nth-child(7) { width: 10%; }
-.order-items-table th:nth-child(8), .order-items-table td:nth-child(8) { width: 40%;  }
-.order-items-table th:nth-child(9), .order-items-table td:nth-child(9) { width: 5%;  }
+.order-items-table th:nth-child(8), .order-items-table td:nth-child(8) { width: 25%;  }
+.order-items-table th:nth-child(9), .order-items-table td:nth-child(9) { width: 6%;  }
 
 .bsp-prodreq-form-table th:nth-child(1), .bsp-prodreq-form-table td:nth-child(1) { width: 12%; }
-.bsp-prodreq-form-table th:nth-child(2), .bsp-prodreq-form-table td:nth-child(2) { width: 8%; }
+.bsp-prodreq-form-table th:nth-child(2), .bsp-prodreq-form-table td:nth-child(2) { width: 12%; } 
 .bsp-prodreq-form-table th:nth-child(3), .bsp-prodreq-form-table td:nth-child(3) { width: 10%; }
 .bsp-prodreq-form-table th:nth-child(4), .bsp-prodreq-form-table td:nth-child(4) { width: 12%; }
 .bsp-prodreq-form-table th:nth-child(5), .bsp-prodreq-form-table td:nth-child(5) { width: 15%; }
-.bsp-prodreq-form-table th:nth-child(6), .bsp-prodreq-form-table td:nth-child(6) { width: 35%; }
+.bsp-prodreq-form-table th:nth-child(6), .bsp-prodreq-form-table td:nth-child(6) { width: 31%; } 
 .bsp-prodreq-form-table th:nth-child(7), .bsp-prodreq-form-table td:nth-child(7) { width: 5%;  }
 
 .request-items-table th:nth-child(1), .request-items-table td:nth-child(1) { width: 20%; }
 .request-items-table th:nth-child(2), .request-items-table td:nth-child(2) { width: 20%; }
 .request-items-table th:nth-child(3), .request-items-table td:nth-child(3) { width: 55%; }
 .request-items-table th:nth-child(4), .request-items-table td:nth-child(4) { width: 5%;  }
-.order-items-table,
-.bsp-prodreq-form-table,
-.request-items-table {
-    min-height: 300px;
+
+.overtime-items-table th:nth-child(1), .overtime-items-table td:nth-child(1) { width: 17%; } 
+.overtime-items-table th:nth-child(2), .overtime-items-table td:nth-child(2) { width: 17%; }
+.overtime-items-table th:nth-child(3), .overtime-items-table td:nth-child(3) { width: 15%; } 
+.overtime-items-table th:nth-child(4), .overtime-items-table td:nth-child(4) { width: 15%; } 
+.overtime-items-table th:nth-child(5), .overtime-items-table td:nth-child(5) { width: 35%; } 
+.overtime-items-table th:nth-child(6), .overtime-items-table td:nth-child(6) { width: 5%;  } 
+
+.bsp-prodreq-form-table input.form-control,
+.bsp-prodreq-form-table select.form-select {
+    height: 50px !important; 
+    padding: 0.5rem 0.75rem !important;
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
+    overflow: hidden; 
+}
+
+.bsp-prodreq-form-table textarea.form-control {
+    height: 70px !important; 
+    padding: 0.5rem 0.75rem !important;
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
+    overflow-y: auto; 
+    resize: vertical;
+}
+
+.bsp-prodreq-form-table input[type="checkbox"][name$="-DELETE"] {
+    display: none;
+}
+
+.delete-row-btn {
+    width: 35px; 
+    height: 35px; 
+    background-color: transparent; 
+    border: none; 
+    color: #dc3545; 
+    font-size: 2.5rem; 
+    font-weight: normal; 
+    line-height: 1; 
+    padding: 0;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto; 
+}
+
+.delete-row-btn:hover {
+    color: #c82333; 
+    transform: scale(1.1); 
+}
+
+.formset-row.row-hidden {
+    display: none; 
+}
+
+.bsp-prodreq-form-table input.form-control.is-invalid,
+.bsp-prodreq-form-table textarea.form-control.is-invalid {
+    border-color: #dc3545 !important;
+    border-width: 2px;
+    background-image: none !important;
+}
+
+.bsp-prodreq-form-table select.form-select.is-invalid {
+    border-color: #dc3545 !important;
+    border-width: 2px;
+}
+
+.field-error-tooltip {
+    position: absolute;
+    bottom: -15px;
+    right: 5px;
+    z-index: 10;
+    background-color: transparent;
+    color: #dc3545;
+    padding: 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
 }

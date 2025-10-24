@@ -1,39 +1,50 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const addButton = document.getElementById('add-item-btn');
-    const tableBody = document.getElementById('form-container'); 
-    const emptyFormTemplate = document.getElementById('empty-form-template'); 
-    const totalFormsInput = document.querySelector('input[name$="TOTAL_FORMS"]');
-    const prefix = totalFormsInput.name.replace('-TOTAL_FORMS', '');
-    const form = document.getElementById('prodreq-form');
-    const submitButton = document.getElementById('submit-button');
-    
-    function cleanEmptyLabels(container) {
-        container.querySelectorAll("select").forEach(sel => {
+document.addEventListener('DOMContentLoaded', function() {
+
+    function cleanupSelectPlaceholders(contextElement) {
+        const allSelects = contextElement.querySelectorAll("select");
+        allSelects.forEach(sel => {
             if (sel.options.length > 0 && sel.options[0].value === "") {
                 sel.options[0].text = "";
             }
         });
     }
 
+    const requestForm = document.getElementById('request-form');
+    if (!requestForm) return;
+
+    const addButton = document.getElementById('add-item-btn');
+    const tableBody = document.getElementById('form-container');
+    const emptyFormTemplate = document.getElementById('empty-form-template');
+    const totalFormsInput = document.querySelector('input[name$="TOTAL_FORMS"]');
+    const submitButton = document.getElementById('submit-button');
+
+    if (!addButton || !tableBody || !emptyFormTemplate || !totalFormsInput) {
+        console.error("Formset elements (buttons, container, template, or TOTAL_FORMS) are missing!");
+        return;
+    }
+
+    const prefix = totalFormsInput.name.replace('-TOTAL_FORMS', '');
+
     function updateDeleteButtons() {
         const visibleRows = tableBody.querySelectorAll('tr.formset-row:not(.row-hidden)');
         visibleRows.forEach((row, index) => {
             const deleteButton = row.querySelector('.delete-row-btn');
             if (deleteButton) {
-                deleteButton.style.display = visibleRows.length > 1 ? 'flex' : 'none';
+                deleteButton.style.display = visibleRows.length > 1 ? '' : 'none';
             }
         });
     }
-    
+
     function hideDeletedRowsOnLoad() {
         tableBody.querySelectorAll('tr.formset-row').forEach(row => {
             const deleteCheckbox = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
             if (deleteCheckbox && deleteCheckbox.checked) {
                 row.classList.add('row-hidden');
+                 row.style.display = 'none';
             }
         });
     }
-    
+
     function updateElementIndex(el, index) {
         const idRegex = new RegExp(prefix + '-\\d+-');
         const nameRegex = new RegExp(prefix + '-\\d+-');
@@ -41,21 +52,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const newNamePrefix = prefix + '-' + index + '-';
 
         if (el.id && el.id.startsWith(prefix + '-')) {
-             el.id = el.id.replace(idRegex, newIdPrefix);
+            el.id = el.id.replace(idRegex, newIdPrefix);
         }
-         if (el.name && el.name.startsWith(prefix + '-')) {
-             el.name = el.name.replace(nameRegex, newNamePrefix);
+        if (el.name && el.name.startsWith(prefix + '-')) {
+            el.name = el.name.replace(nameRegex, newNamePrefix);
         }
-        
-        const prefixPlaceholderId = new RegExp('__prefix__');
-        const prefixPlaceholderName = new RegExp('__prefix__');
-         if (el.id && el.id.includes('__prefix__')) {
+
+        const prefixPlaceholderId = /__prefix__/;
+        const prefixPlaceholderName = /__prefix__/;
+        if (el.id && el.id.includes('__prefix__')) {
              el.id = el.id.replace(prefixPlaceholderId, index);
-         }
-         if (el.name && el.name.includes('__prefix__')) {
+        }
+        if (el.name && el.name.includes('__prefix__')) {
              el.name = el.name.replace(prefixPlaceholderName, index);
-         }
+        }
     }
+
 
     function addFormRow() {
         let newIndex = parseInt(totalFormsInput.value);
@@ -73,10 +85,10 @@ document.addEventListener('DOMContentLoaded', () => {
             hiddenDeleteCheckbox.checked = false;
         }
 
-        cleanEmptyLabels(newRow);
+        cleanupSelectPlaceholders(newRow);
         updateDeleteButtons();
     }
-    
+
     addButton.addEventListener('click', (e) => {
         e.preventDefault();
         addFormRow();
@@ -94,27 +106,27 @@ document.addEventListener('DOMContentLoaded', () => {
             if (deleteCheckbox) {
                 deleteCheckbox.checked = true;
                 row.classList.add('row-hidden');
-                updateDeleteButtons(); 
+                row.style.display = 'none';
+                updateDeleteButtons();
             }
         }
     });
 
-    if (form) {
-        form.addEventListener('submit', () => {
-            if (submitButton) {
-                submitButton.disabled = true;
-                submitButton.textContent = 'در حال ثبت...';
-            }
-        });
-    }
+    requestForm.addEventListener('submit', () => {
+        if (submitButton) {
+            submitButton.disabled = true;
+            submitButton.textContent = 'در حال ثبت...';
+        }
+    });
 
-    hideDeletedRowsOnLoad(); 
-    
+    cleanupSelectPlaceholders(document.body);
+    hideDeletedRowsOnLoad();
+
     if (tableBody.querySelectorAll('tr.formset-row:not(.row-hidden)').length === 0) {
        addFormRow();
     } else {
-        cleanEmptyLabels(document); 
-        updateDeleteButtons(); 
+        updateDeleteButtons();
     }
+
 });
 

@@ -5,40 +5,34 @@
 {% block dashboard_cards %}
 <link rel="stylesheet" href="{% static 'css/dashboard_task_first.css' %}">
 <div class="task-first-dashboard">
-    <div class="top-tasks-grid">
-        <a href="{% url 'planning:my_tasks' %}" class="primary-task-card">
-            <div class="task-icon"><i class="fas fa-cogs"></i></div>
-            <div class="task-details">
-                <h3>وظایف تولید</h3>
-                <p>درخواست‌های تولید در انتظار تایید شما.</p>
-            </div>
-            <div class="task-counter"><span class="count">{{ counts.pending_factory_production }}</span><span>وظیفه</span></div>
-        </a>
-        <a href="{% url 'overtime:my_tasks' %}" class="primary-task-card">
-            <div class="task-icon"><i class="fas fa-user-clock"></i></div>
-            <div class="task-details">
-                <h3>وظایف اضافه کاری</h3>
-                <p>درخواست‌های اضافه کاری در انتظار تایید شما.</p>
-            </div>
-            <div class="task-counter"><span class="count">{{ counts.pending_factory_overtime }}</span><span>وظیفه</span></div>
-        </a>
-    </div>
+
+    <a href="{% url 'core:my_all_tasks' %}" class="primary-task-card">
+        <div class="task-icon"><i class="fas fa-tasks"></i></div>
+        <div class="task-details">
+            <h3>تمام وظایف من</h3>
+            <p>مشاهده تمام کارهای در انتظار.</p>
+        </div>
+        <div class="task-counter">
+            <span class="count">{{ counts.total_tasks_count }}</span>
+            <span>وظیفه</span>
+        </div>
+    </a>
+    
     <div class="actions-section">
-        <h3 class="section-title">اقدامات سریع</h3>
+        <h3 class="section-title">اقدامات</h3>
         <div class="actions-grid">
             <a href="{% url 'planning:prodreq_create' %}" class="action-button"><i class="fas fa-industry"></i><span>درخواست تولید جدید</span></a>
             <a href="{% url 'overtime:overtime_create' %}" class="action-button"><i class="fas fa-clock"></i><span>ثبت اضافه کاری</span></a>
-             <a href="{% url 'requests:my_tasks' %}" class="action-button"><i class="fas fa-inbox"></i><span>سایر وظایف ({{ counts.pending_factory_requests }})</span></a>
+            <a href="{% url 'requests:request_create' %}" class="action-button"><i class="fas fa-file-alt"></i><span>ثبت درخواست جدید</span></a>
         </div>
     </div>
     <div class="lists-section">
         <h3 class="section-title">پیگیری و مشاهده</h3>
         <div class="list-container">
+            <a href="{% url 'core:my_all_requests' %}" class="list-item"><i class="fas fa-user-check"></i><span>لیست درخواست‌های من</span></a>
             <a href="{% url 'planning:prodreq_list' %}" class="list-item"><i class="fas fa-clipboard-list"></i><span>لیست درخواست‌های تولید</span></a>
             <a href="{% url 'overtime:overtime_list' %}" class="list-item"><i class="fas fa-history"></i><span>لیست کل اضافه کاری‌ها</span></a>
             <a href="{% url 'requests:request_list' %}" class="list-item"><i class="fas fa-folder-open"></i><span>لیست درخواست‌های عمومی</span></a>
-            <a href="{% url 'orders:order_list' %}" class="list-item"><i class="fas fa-list-ul"></i><span>لیست کل سفارش‌ها</span></a>
-            <a href="{% url 'core:my_all_requests' %}" class="list-item"><i class="fas fa-user-check"></i><span>تمام درخواست‌های من</span></a>
         </div>
     </div>
 </div>

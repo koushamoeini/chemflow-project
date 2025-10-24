@@ -1,7 +1,49 @@
 from django import forms
-from django.forms import inlineformset_factory
+from django.forms import inlineformset_factory, BaseInlineFormSet
 from django.contrib.auth import authenticate
 from .models import CustomerOrder,OrderItem, PackagingType, RequestType, ShippingMethod, Unit
+
+
+class BaseOrderItemFormSet(BaseInlineFormSet):
+    def clean(self):
+        super().clean()
+
+        if not hasattr(self, '_errors'):
+            return
+
+        new_errors_list = []
+        non_deleted_forms = []
+
+        for i, form in enumerate(self.forms):
+            delete_field_name = f'{form.prefix}-DELETE'
+            is_marked_for_delete = self.data.get(delete_field_name) in ('on', 'True', 'true', '1')
+
+            if is_marked_for_delete:
+                new_errors_list.append({}) 
+                form.cleaned_data = {'DELETE': True} 
+            else:
+                non_deleted_forms.append(form)
+                if i < len(self._errors):
+                    new_errors_list.append(self._errors[i])
+                else:
+                    new_errors_list.append({}) 
+
+        self._errors = new_errors_list
+        
+        if any(self.errors):
+            return
+        
+        has_at_least_one_item = any(f.has_changed() for f in non_deleted_forms)
+        is_creating_new = not (self.instance and self.instance.pk)
+        
+        is_updating_and_deleting_all = False
+        if not is_creating_new:
+            if not non_deleted_forms and self.initial_forms:
+                 is_updating_and_deleting_all = True
+
+        if not has_at_least_one_item and not is_updating_and_deleting_all:
+            if is_creating_new:
+                raise forms.ValidationError("لطفاً حداقل اطلاعات یک ردیف محصول را پر کنید.")
 
 
 class CustomerOrderForm(forms.ModelForm):
@@ -50,8 +92,6 @@ class CustomerOrderForm(forms.ModelForm):
         self.request = kwargs.pop("request", None)
         super().__init__(*args, **kwargs)
         
-        # Make sure we only show active items in dropdowns
-        
         self.fields['request_type'].queryset = RequestType.objects.filter(is_active=True)
 
         instance = getattr(self, "instance", None)
@@ -87,7 +127,7 @@ class OrderItemForm(forms.ModelForm):
             "description": "توضیحات",
         }
         widgets = {
-              "product_code": forms.TextInput(attrs={ 
+            "product_code": forms.TextInput(attrs={ 
                 'class': 'form-control',
             }),
             "product_name": forms.TextInput(attrs={"class": "form-control"}),
@@ -98,44 +138,44 @@ class OrderItemForm(forms.ModelForm):
             "batch_number": forms.TextInput(attrs={"class": "form-control"}),
             'description': forms.Textarea(attrs={"class": "form-control", "rows": 1}),
         }
+        error_messages = {
+            'product_name': {'required': "این فیلد الزامی هست"},
+            'quantity': {'required': "این فیلد الزامی هست"},
+            'unit': {'required': "این فیلد الزامی هست"},
+            'packaging_type': {'required': "این فیلد الزامی هست"},
+            'shipping_method': {'required': "این فیلد الزامی هست"},
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        # Make sure we only show active items in dropdowns
         self.fields['packaging_type'].queryset = PackagingType.objects.filter(is_active=True)
         self.fields['unit'].queryset = Unit.objects.filter(is_active=True)
         self.fields['shipping_method'].queryset = ShippingMethod.objects.filter(is_active=True)
         
+        self.fields['packaging_type'].empty_label = "انتخاب کنید"
+        self.fields['unit'].empty_label = "انتخاب کنید"
+        self.fields['shipping_method'].empty_label = "انتخاب کنید"
+
         if 'DELETE' in self.fields:
             self.fields['DELETE'].widget = forms.CheckboxInput(attrs={'class': 'form-check-input'})
             self.fields['DELETE'].label = False
+            
+        if self.errors:
+            for field_name in self.errors:
+                if field_name in self.fields:
+                    widget_class = self.fields[field_name].widget.attrs.get('class', '')
+                    if 'is-invalid' not in widget_class:
+                        self.fields[field_name].widget.attrs['class'] = widget_class + ' is-invalid'
 
 
 OrderItemFormSet = inlineformset_factory(
     parent_model=CustomerOrder,
     model=OrderItem,
     form=OrderItemForm,
-    extra=1,
+    formset=BaseOrderItemFormSet,
+    extra=0,
     can_delete=True,
-    min_num=1,
-    validate_min=True,
+    min_num=0,
+    validate_min=False,
 )
-
-
-
-class ConfirmPasswordForm(forms.Form):
-    password = forms.CharField(
-        widget=forms.PasswordInput(attrs={"autocomplete": "current-password", "class": "form-control"})
-    )
-
-    def __init__(self, user, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.user = user
-
-    def clean(self):
-        cleaned = super().clean()
-        pwd = cleaned.get("password")
-        if not self.user.is_authenticated or not authenticate(username=self.user.username, password=pwd):
-            raise forms.ValidationError("رمز عبور اشتباه است.")
-        return cleaned
