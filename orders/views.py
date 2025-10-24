@@ -247,4 +247,3 @@ def product_autocomplete(request):
     products = Product.objects.filter(Q(name__icontains=query) | Q(code__icontains=query))[:10] if query else Product.objects.none()
     results = [{'id': p.id, 'name': p.name, 'code': p.code} for p in products]
     return JsonResponse(results, safe=False)
-

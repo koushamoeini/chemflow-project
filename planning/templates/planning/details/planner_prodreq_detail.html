@@ -1,7 +1,6 @@
 {% extends "planning/details/prodreq_detail.html" %}
 
-{% block action_buttons %}
-{% if can_edit %}<a href="{% url 'planning:prodreq_update' req.pk %}" class="btn btn-warning mx-1">ویرایش</a>{% endif %}
-{% if can_sign_planning %}<a href="{% url 'planning:sign_planning' req.pk %}" class="btn btn-primary mx-1">تأیید برنامه‌ریزی</a>{% endif %}
-{{ block.super }}
+{% block approve_button %}
+{% if can_sign_planning %}<a href="{% url 'planning:sign_planning' req.pk %}" class="btn btn-primary btn-sm">تأیید برنامه‌ریزی</a>{% endif %}
 {% endblock %}
+

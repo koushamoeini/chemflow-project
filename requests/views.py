@@ -93,25 +93,23 @@ def request_create(request):
         form = RequestForm(request.POST)
         formset = RequestItemFormSet(request.POST)
 
-        if "save_request" in request.POST:
-            if form.is_valid() and formset.is_valid():
-                with transaction.atomic():
-                    new_request = form.save(commit=False)
-                    new_request.created_by = request.user
-                    new_request.request_number = get_next_request_number()
-                    new_request.save()
+        is_form_valid = form.is_valid()
+        is_formset_valid = formset.is_valid() 
 
-                    formset.instance = new_request
-                    formset.save()
+        if is_form_valid and is_formset_valid:
+            with transaction.atomic():
+                new_request = form.save(commit=False)
+                new_request.created_by = request.user
+                new_request.request_number = get_next_request_number()
+                new_request.save()
 
-                messages.success(request, "درخواست با موفقیت ثبت شد.")
-                return redirect("requests:request_detail", pk=new_request.pk)
-            else:
-                messages.error(request, "فرم نامعتبر است. لطفاً خطاها را بررسی کنید.")
-                return render(request, "requests/request_form.html", {"form": form, "formset": formset, "title": "ثبت درخواست جدید"})
+                formset.instance = new_request
+                formset.save()
+
+            messages.success(request, "درخواست با موفقیت ثبت شد.")
+            return redirect("requests:request_detail", pk=new_request.pk)
         else:
-             return render(request, "requests/request_form.html", {"form": form, "formset": formset, "title": "ثبت درخواست جدید"})
-
+            return render(request, "requests/request_form.html", {"form": form, "formset": formset, "title": "ثبت درخواست جدید"})
 
     else: # GET request
         form = RequestForm()
@@ -128,24 +126,21 @@ def request_update(request, pk):
         messages.warning(request, "امکان ویرایش این درخواست برای شما وجود ندارد.")
         return redirect("requests:request_detail", pk=request_obj.pk)
 
-
     if request.method == "POST":
         form = RequestForm(request.POST, instance=request_obj)
         formset = RequestItemFormSet(request.POST, instance=request_obj)
 
-        if "save_request" in request.POST:
-            if form.is_valid() and formset.is_valid():
-                with transaction.atomic():
-                    form.save()
-                    formset.save()
-                messages.success(request, "درخواست با موفقیت به‌روزرسانی شد.")
-                return redirect("requests:request_detail", pk=request_obj.pk)
-            else:
-                 messages.error(request, "لطفاً خطاهای فرم را برطرف کنید.")
-                 return render(request, "requests/request_form.html", {"form": form, "formset": formset, "title": f"ویرایش {request_obj.request_number}"})
-        else:
-             return render(request, "requests/request_form.html", {"form": form, "formset": formset, "title": f"ویرایش {request_obj.request_number}"})
+        is_form_valid = form.is_valid()
+        is_formset_valid = formset.is_valid() 
 
+        if is_form_valid and is_formset_valid:
+            with transaction.atomic():
+                form.save()
+                formset.save()
+            messages.success(request, "درخواست با موفقیت به‌روزرسانی شد.")
+            return redirect("requests:request_detail", pk=request_obj.pk)
+        else:
+            return render(request, "requests/request_form.html", {"form": form, "formset": formset, "title": f"ویرایش {request_obj.request_number}"})
 
     else: # GET request
         form = RequestForm(instance=request_obj)
@@ -169,7 +164,7 @@ def request_detail(request, pk):
     management_template = "requests/details/management_request_details.html"
     read_only_template = "requests/details/read_only_request_details.html"
 
-    template_name = read_only_template # Default
+    template_name = read_only_template 
 
     if is_creator and can_approve_creator_flag:
         template_name = creator_template
@@ -177,13 +172,12 @@ def request_detail(request, pk):
         template_name = factory_manager_template
     elif role == 'management' and can_approve_management_flag:
         template_name = management_template
-    elif role == 'factory_manager': # User has the role but cannot approve the current step
+    elif role == 'factory_manager': 
         template_name = factory_manager_template
-    elif role == 'management': # User has the role but cannot approve the current step
+    elif role == 'management': 
         template_name = management_template
-    elif is_creator: # Creator but cannot approve (already approved or wrong status)
-         template_name = creator_template # Still show creator view, just without approve button
-
+    elif is_creator: 
+        template_name = creator_template 
 
     context = {
         "request_obj": request_obj,
@@ -260,4 +254,3 @@ def cancel_request(request, pk):
 
     messages.error(request, "درخواست لغو نامعتبر است (باید POST باشد).")
     return redirect("requests:request_detail", pk=request_obj.pk)
-

@@ -8,40 +8,48 @@ class RequestForm(forms.ModelForm):
         fields = []
 
 class BaseRequestItemFormSet(BaseInlineFormSet):
+    
     def clean(self):
         super().clean()
 
-        num_valid_forms = 0
-        num_forms_submitted = 0
-        num_non_deleted_forms = 0
+        if not hasattr(self, '_errors'):
+            return
+
+        new_errors_list = []
+        non_deleted_forms = []
 
         for i, form in enumerate(self.forms):
-            if self.can_delete and form.cleaned_data.get('DELETE'):
-                continue
+            delete_field_name = f'{form.prefix}-DELETE'
+            is_marked_for_delete = self.data.get(delete_field_name) in ('on', 'True', 'true', '1')
 
-            num_non_deleted_forms += 1
+            if is_marked_for_delete:
+                new_errors_list.append({}) 
+                form.cleaned_data = {'DELETE': True} 
+            else:
+                non_deleted_forms.append(form)
+                if i < len(self._errors):
+                    new_errors_list.append(self._errors[i])
+                else:
+                    new_errors_list.append({}) 
 
-            if form.has_changed():
-                 num_forms_submitted += 1
-                 if form.is_valid():
-                    num_valid_forms += 1
-            elif form.instance.pk and not form.errors:
-                 num_valid_forms += 1
-                 num_forms_submitted +=1
+        self._errors = new_errors_list
+        
+        if any(self.errors):
+            return
+        
+        # --- این همان منطق جدیدی است که درخواست کردی ---
+        has_at_least_one_item = any(f.has_changed() for f in non_deleted_forms)
+        is_creating_new = not (self.instance and self.instance.pk)
+        
+        is_updating_and_deleting_all = False
+        if not is_creating_new:
+            if not non_deleted_forms and self.initial_forms:
+                 is_updating_and_deleting_all = True
 
-        if num_non_deleted_forms == 0 and len(self.forms) > 0 and self.min_num == 0:
-             pass
-
-        elif num_non_deleted_forms > 0 and num_forms_submitted == 0:
-            if self.min_num > 0 or not any(f.instance.pk for f in self.forms):
-                 raise forms.ValidationError(
-                    "لطفاً حداقل اطلاعات یک ردیف آیتم را پر کنید.", code='no_forms_submitted'
-                 )
-
-        elif self.validate_min and num_non_deleted_forms < self.min_num:
-             raise forms.ValidationError(
-                 f"حداقل باید {self.min_num} آیتم وارد کنید.", code='min_num_required'
-             )
+        if not has_at_least_one_item and not is_updating_and_deleting_all:
+            if is_creating_new:
+                raise forms.ValidationError("لطفاً حداقل اطلاعات یک ردیف آیتم را پر کنید.")
+        # --- پایان منطق جدید ---
 
 
 class RequestItemForm(forms.ModelForm):
@@ -79,7 +87,6 @@ class RequestItemForm(forms.ModelForm):
 
         self.fields['request_type'].empty_label = "انتخاب کنید"
         self.fields['cost_center'].empty_label = "انتخاب کنید"
-
         self.fields['description'].required = True
 
         if self.errors:
@@ -100,4 +107,3 @@ RequestItemFormSet = inlineformset_factory(
     min_num=0,
     validate_min=False
 )
-

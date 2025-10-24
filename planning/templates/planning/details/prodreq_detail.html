@@ -69,10 +69,10 @@
 
     {% if can_edit or can_sign_planning or can_sign_factory or can_cancel %}
     <div class="order-actions-container">
-        <div class="top-actions d-flex justify-content-between align-items-center">
+        <div class="top-actions d-flex justify-content-between align-items-start mb-3 py-1">
             <div class="d-flex gap-2">
-                {% block action_buttons %}
-                {% endblock %}
+                 {% if can_edit %}<a href="{% url 'planning:prodreq_update' req.pk %}" class="btn btn-warning btn-sm">ویرایش</a>{% endif %}
+                 {% block approve_button %}{% endblock %}
             </div>
             <div>
                 {% if can_cancel %}

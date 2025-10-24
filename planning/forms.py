@@ -6,30 +6,42 @@ class BaseProductionItemFormSet(BaseInlineFormSet):
     def clean(self):
         super().clean()
 
-        num_valid_forms = 0
-        num_forms_submitted = 0
-        num_non_deleted_forms = 0
+        if not hasattr(self, '_errors'):
+            return
+
+        new_errors_list = []
+        non_deleted_forms = []
 
         for i, form in enumerate(self.forms):
-            if self.can_delete and form.cleaned_data.get('DELETE'):
-                continue
+            delete_field_name = f'{form.prefix}-DELETE'
+            is_marked_for_delete = self.data.get(delete_field_name) in ('on', 'True', 'true', '1')
 
-            num_non_deleted_forms += 1
+            if is_marked_for_delete:
+                new_errors_list.append({}) 
+                form.cleaned_data = {'DELETE': True} 
+            else:
+                non_deleted_forms.append(form)
+                if i < len(self._errors):
+                    new_errors_list.append(self._errors[i])
+                else:
+                    new_errors_list.append({}) 
 
-            if form.has_changed():
-                num_forms_submitted += 1
-                if not form.errors: 
-                    num_valid_forms += 1
+        self._errors = new_errors_list
         
-        if num_non_deleted_forms == 0 and len(self.forms) > 0 :
-            pass 
-        elif num_forms_submitted == 0 and num_non_deleted_forms > 0:
-            raise forms.ValidationError(
-                "لطفاً حداقل اطلاعات یک ردیف محصول را پر کنید.", code='no_forms_submitted'
-            )
+        if any(self.errors):
+            return
         
-        elif num_forms_submitted > 0 and num_valid_forms == 0:
-            pass
+        has_at_least_one_item = any(f.has_changed() for f in non_deleted_forms)
+        is_creating_new = not (self.instance and self.instance.pk)
+        
+        is_updating_and_deleting_all = False
+        if not is_creating_new:
+            if not non_deleted_forms and self.initial_forms:
+                 is_updating_and_deleting_all = True
+
+        if not has_at_least_one_item and not is_updating_and_deleting_all:
+            if is_creating_new:
+                raise forms.ValidationError("لطفاً حداقل اطلاعات یک ردیف محصول را پر کنید.")
 
 
 class ProductionRequestForm(forms.ModelForm):
@@ -109,4 +121,3 @@ ProductionItemFormSet = inlineformset_factory(
     min_num=0, 
     validate_min=False, 
 )
-
