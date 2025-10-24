@@ -217,6 +217,12 @@ hr.my-4 {
 .request-items-table th:nth-child(3), .request-items-table td:nth-child(3) { width: 55%; }
 .request-items-table th:nth-child(4), .request-items-table td:nth-child(4) { width: 5%;  }
 
+.overtime-items-table th:nth-child(1), .overtime-items-table td:nth-child(1) { width: 17%; } 
+.overtime-items-table th:nth-child(2), .overtime-items-table td:nth-child(2) { width: 17%; }
+.overtime-items-table th:nth-child(3), .overtime-items-table td:nth-child(3) { width: 15%; } 
+.overtime-items-table th:nth-child(4), .overtime-items-table td:nth-child(4) { width: 15%; } 
+.overtime-items-table th:nth-child(5), .overtime-items-table td:nth-child(5) { width: 35%; } 
+.overtime-items-table th:nth-child(6), .overtime-items-table td:nth-child(6) { width: 5%;  } 
 
 .bsp-prodreq-form-table input.form-control,
 .bsp-prodreq-form-table select.form-select {
