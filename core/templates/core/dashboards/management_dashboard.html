@@ -20,7 +20,7 @@
         </a>
         </div>
     <div class="actions-section">
-        <h3 class="section-title">اقدامات سریع</h3>
+        <h3 class="section-title">اقدامات</h3>
         <div class="actions-grid">
             <a href="{% url 'orders:order_create' %}" class="action-button"><i class="fas fa-plus-circle"></i><span>ثبت سفارش</span></a>
             <a href="{% url 'planning:prodreq_create' %}" class="action-button"><i class="fas fa-industry"></i><span>درخواست تولید</span></a>
@@ -31,11 +31,11 @@
     <div class="lists-section">
         <h3 class="section-title">پیگیری و مشاهده</h3>
         <div class="list-container">
+            <a href="{% url 'core:my_all_requests' %}" class="list-item"><i class="fas fa-user-check"></i><span>لیست درخواست‌های من</span></a>
             <a href="{% url 'orders:order_list' %}" class="list-item"><i class="fas fa-list-ul"></i><span>لیست سفارش‌ها</span></a>
             <a href="{% url 'planning:prodreq_list' %}" class="list-item"><i class="fas fa-clipboard-list"></i><span>لیست درخواست‌های تولید</span></a>
-            <a href="{% url 'overtime:overtime_list' %}" class="list-item"><i class="fas fa-history"></i><span>لیست اضافه کاری</span></a>
-            <a href="{% url 'requests:request_list' %}" class="list-item"><i class="fas fa-folder-open"></i><span>لیست درخواست‌ها</span></a>
-            <a href="{% url 'core:my_all_requests' %}" class="list-item"><i class="fas fa-user-check"></i><span>تمام درخواست‌های من</span></a>
+            <a href="{% url 'overtime:overtime_list' %}" class="list-item"><i class="fas fa-history"></i><span>لیست کل اضافه کاری ها</span></a>
+            <a href="{% url 'requests:request_list' %}" class="list-item"><i class="fas fa-folder-open"></i><span>لیست درخواست‌های عمومی</span></a>
         </div>
     </div>
 </div>

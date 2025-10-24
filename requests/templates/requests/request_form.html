@@ -2,18 +2,22 @@
 {% load static %}
 {% block content %}
 
-
 <link rel="stylesheet" href="{% static 'css/form_styles.css' %}">
 
 <div class="container mt-4" dir="rtl">
-    <h2 class="mb-4 text-center">ثبت / ویرایش درخواست</h2>
+    <h2 class="mb-4 text-center">{{ title|default:"ثبت / ویرایش درخواست" }}</h2>
 
-    <form method="post" class="card p-4 shadow-sm border-0">
+    <form method="post" class="card p-4 shadow-sm border-0" id="request-form">
         {% csrf_token %}
 
         <h5 class="mb-3">آیتم‌های درخواست</h5>
         {{ formset.management_form }}
-        {{ formset.non_form_errors }}
+
+        {% if formset.non_form_errors %}
+            <div class="alert alert-danger">
+                {{ formset.non_form_errors }}
+            </div>
+        {% endif %}
 
         <div class="table-responsive">
             <table class="table table-bordered align-middle request-items-table">
@@ -27,52 +31,97 @@
                 </thead>
                 <tbody id="form-container">
                 {% for f in formset.forms %}
-                <tr class="item-form">
+                <tr class="formset-row item-form">
                     <td>
                         {{ f.id }}
-                        {{ f.request_type }}{{ f.request_type.errors }}
+                        {{ f.request_type }}
+                        {% if f.request_type.errors %}
+                            <div class="field-error-tooltip">
+                                {% for error in f.request_type.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
                     </td>
-                    <td>{{ f.cost_center }}{{ f.cost_center.errors }}</td>
-                    <td>{{ f.description }}{{ f.description.errors }}</td>
-                    <td class="text-center">{% if formset.can_delete %}{{ f.DELETE }}{% endif %}</td>
+                    <td>
+                        {{ f.cost_center }}
+                         {% if f.cost_center.errors %}
+                            <div class="field-error-tooltip">
+                                {% for error in f.cost_center.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ f.description }}
+                         {% if f.description.errors %}
+                            <div class="field-error-tooltip">
+                                {% for error in f.description.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        {% if formset.can_delete %}
+                            <div style="display: none;">{{ f.DELETE }}</div>
+                            <button type="button" class="delete-row-btn btn btn-sm btn-outline-danger" title="حذف ردیف">&times;</button>
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
                 </tbody>
             </table>
         </div>
 
-        <table style="display: none;">
-            <tr id="empty-form" class="item-form">
-                <td>
-                    {{ formset.empty_form.id }}
-                    {{ formset.empty_form.request_type }}
-                </td>
-                <td>{{ formset.empty_form.cost_center }}</td>
-                <td>{{ formset.empty_form.description }}</td>
-                <td class="text-center">{% if formset.can_delete %}{{ formset.empty_form.DELETE }}{% endif %}</td>
-            </tr>
-        </table>
+        <template id="empty-form-template">
+             <tr class="formset-row item-form">
+                 {% with f=formset.empty_form %}
+                 {{ f.id }}
+                 <td>
+                     {{ f.request_type }}
+                      {% if f.request_type.errors %}
+                         <div class="field-error-tooltip">
+                             {% for error in f.request_type.errors %}{{ error }}{% endfor %}
+                         </div>
+                     {% endif %}
+                 </td>
+                 <td>
+                      {{ f.cost_center }}
+                      {% if f.cost_center.errors %}
+                         <div class="field-error-tooltip">
+                             {% for error in f.cost_center.errors %}{{ error }}{% endfor %}
+                         </div>
+                     {% endif %}
+                 </td>
+                 <td>
+                      {{ f.description }}
+                      {% if f.description.errors %}
+                         <div class="field-error-tooltip">
+                             {% for error in f.description.errors %}{{ error }}{% endfor %}
+                         </div>
+                     {% endif %}
+                 </td>
+                 <td class="text-center">
+                     {% if formset.can_delete %}
+                         <div style="display: none;">{{ f.DELETE }}</div>
+                         <button type="button" class="delete-row-btn" title="حذف ردیف">&times;</button>
+                     {% endif %}
+                 </td>
+                 {% endwith %}
+             </tr>
+        </template>
+
 
         <div class="d-flex gap-2">
-            <button type="button" id="add-item-btn" class="btn btn-outline-primary">+ افزودن آیتم</button>
+            <button type="button" id="add-item-btn" class="btn btn-outline-primary">+ افزودن درخواست</button>
         </div>
 
         <hr class="my-4">
         <div class="text-center mt-3">
-            <button type="submit" name="save_request" class="btn btn-success px-4">ثبت نهایی</button>
-            {% url 'requests:request_list' as back_url %}
-            <a href="{{ back_url|default:'#' }}" class="btn btn-secondary px-4 ms-2">بازگشت</a>
+            <button type="submit" name="save_request" class="btn btn-success px-4">ثبت</button>
+ 
         </div>
     </form>
 </div>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        document.querySelectorAll("select").forEach(sel => {
-            if (sel.options.length > 0 && sel.options[0].value === "") {
-                sel.options[0].text = "";
-            }
-        });
-    });
-</script>
+
+<script src="{% static 'js/request_form.js' %}"></script>
+
 {% endblock %}
+

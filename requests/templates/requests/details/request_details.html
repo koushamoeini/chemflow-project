@@ -8,15 +8,13 @@
 
     <h2 class="page-title text-center mb-4">جزئیات درخواست {{ request_obj.request_number }}</h2>
 
-    {% if messages %}{% for m in messages %}<div class="alert alert-{{ m.tags }}">{{ m }}</div>{% endfor %}{% endif %}
-
     <div class="card mb-4 shadow-sm">
         <div class="card-body">
             <h5 class="card-title mb-3">اطلاعات کلی درخواست</h5>
             <p><strong>شماره درخواست:</strong> {{ request_obj.request_number }}</p>
-            <p><strong>ثبت کننده:</strong> {{ request_obj.created_by.get_full_name }}</p>
+            <p><strong>ثبت کننده:</strong> {{ request_obj.created_by.get_full_name|default:request_obj.created_by.username }}</p>
             <p><strong>تاریخ ثبت:</strong> {{ request_obj.created_at|date:"Y/m/d H:i" }}</p>
-            <p><strong>وضعیت تکمیل:</strong> {% if request_obj.is_completed %}تکمیل شده{% else %}در حال اجرا{% endif %}</p>
+            <p><strong>وضعیت:</strong> {{ request_obj.get_status_display }}</p>
         </div>
     </div>
 
@@ -31,7 +29,6 @@
                         <th>نوع درخواست</th>
                         <th>مرکز هزینه</th>
                         <th>توضیحات</th>
-                        <th>عملیات</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -40,7 +37,6 @@
                         <td>{{ item.request_type.name }}</td>
                         <td>{{ item.cost_center.name }}</td>
                         <td>{{ item.description|default:"—" }}</td>
-                        <td class="text-center">—</td>
                     </tr>
                     {% endfor %}
                     </tbody>
@@ -57,21 +53,21 @@
             <h5 class="card-title mb-3">وضعیت‌های تأیید</h5>
             <p><strong>تأیید درخواست‌کننده:</strong>
                 {% if request_obj.creator_approved_at %}
-                {{ request_obj.creator.get_full_name }} در {{ request_obj.creator_approved_at|date:"Y/m/d H:i" }}
+                {{ request_obj.creator_approved_by.get_full_name|default:request_obj.creator_approved_by.username }} در {{ request_obj.creator_approved_at|date:"Y/m/d H:i" }}
                 {% else %}
                 در انتظار
                 {% endif %}
             </p>
             <p><strong>تأیید مدیر کارخانه:</strong>
                 {% if request_obj.factory_approved_at %}
-                {{ request_obj.factory_manager.get_full_name }} در {{ request_obj.factory_approved_at|date:"Y/m/d H:i" }}
+                {{ request_obj.factory_approved_by.get_full_name|default:request_obj.factory_approved_by.username }} در {{ request_obj.factory_approved_at|date:"Y/m/d H:i" }}
                 {% else %}
                 در انتظار
                 {% endif %}
             </p>
-            <p><strong>تأیید مدیر اصلی:</strong>
+            <p><strong>تأیید مدیریت:</strong>
                 {% if request_obj.management_approved_at %}
-                {{ request_obj.management.get_full_name }} در {{ request_obj.management_approved_at|date:"Y/m/d H:i" }}
+                {{ request_obj.management_approved_by.get_full_name|default:request_obj.management_approved_by.username }} در {{ request_obj.management_approved_at|date:"Y/m/d H:i" }}
                 {% else %}
                 در انتظار
                 {% endif %}
@@ -79,8 +75,29 @@
         </div>
     </div>
 
-    <div class="order-actions-container">
-        {% block action_buttons %}{% endblock %}
-    </div>
+    {% block action_buttons_wrapper %}
+        {% if can_approve_creator or can_approve_factory or can_approve_management or can_edit or can_cancel %}
+        <div class="order-actions-container mt-4">
+            <div class="top-actions d-flex justify-content-between align-items-start mb-3 py-1">
+                <div class="d-flex gap-2">
+                    {% if can_edit %}
+                        <a href="{% url 'requests:request_update' pk=request_obj.pk %}" class="btn btn-warning btn-sm">ویرایش</a>
+                    {% endif %}
+                    {% block approve_button %}{% endblock %}
+                </div>
+                <div>
+                    {% if can_cancel %}
+                    <form method="post" action="{% url 'requests:cancel_request' pk=request_obj.pk %}" class="cancel-form d-flex gap-2">
+                        {% csrf_token %}
+                        <input type="password" name="confirm_password" placeholder="رمز عبور" required class="form-control form-control-sm w-auto">
+                        <button type="submit" class="btn btn-danger btn-sm">لغو درخواست</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    {% endblock %}
 </div>
 {% endblock %}
+

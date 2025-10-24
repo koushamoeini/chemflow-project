@@ -102,7 +102,7 @@
                 </div>
                 <div>
                     {% if can_cancel %}
-                    <form method="post" action="{% url 'overtime:overtime_cancel' object.pk %}" class="cancel-form d-flex gap-0">
+                    <form method="post" action="{% url 'overtime:overtime_cancel' object.pk %}" class="cancel-form d-flex gap-2">
                         {% csrf_token %}
                         <input type="password" name="confirm_password" placeholder="رمز عبور" required class="form-control form-control-sm w-auto">
                         <button type="submit" class="btn btn-danger btn-sm">لغو درخواست</button>
