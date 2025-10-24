@@ -1,6 +1,6 @@
 from decimal import ROUND_HALF_EVEN
 from django.db.models.query import resolve_callables
-from orders.utils import require_password
+from core.utils import require_password
 from django.http import HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required

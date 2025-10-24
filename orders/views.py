@@ -9,7 +9,7 @@ from django.db.models import Q
 
 from .forms import CustomerOrderForm, OrderItemFormSet
 from .models import CustomerOrder, OrderStatus, Product, Customer
-from .utils import require_password
+from core.utils import require_password
 
 def _get_user_role(user):
     return getattr(getattr(user, "profile", None), "user_type", None)
@@ -247,3 +247,4 @@ def product_autocomplete(request):
     products = Product.objects.filter(Q(name__icontains=query) | Q(code__icontains=query))[:10] if query else Product.objects.none()
     results = [{'id': p.id, 'name': p.name, 'code': p.code} for p in products]
     return JsonResponse(results, safe=False)
+

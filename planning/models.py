@@ -53,32 +53,48 @@ class ProductionRequest(models.Model):
         super().save(*args, **kwargs)
 
     def can_edit_by(self, user):
+        # --- *** شروع تغییر منطق *** ---
+        # قانون ۱: اگر درخواست نهایی (تایید مدیر) یا لغو شده باشد، هیچکس نمی‌تواند ویرایش کند
+        if self.status in [ProductionStatus.FACTORY_SIGNED, ProductionStatus.CANCELED]:
+            return False
+        
         if not getattr(user, "is_authenticated", False) or not hasattr(user, "profile"):
             return False
+        
         role = user.profile.user_type
-        if role in ["management", "factory_manager"]:
+        
+        # قانون ۲: مدیر، مدیر کارخانه و برنامه‌ریز همگی می‌توانند تا قبل از نهایی شدن ویرایش کنند
+        if role in ["management", "factory_manager", "factory_planner"]:
             return True
-        if role == "factory_planner":
-            return self.status in [ProductionStatus.DRAFT, ProductionStatus.PLANNING_SIGNED] and self.created_by_id == user.id
+        
         return False
+        # --- *** پایان تغییر منطق *** ---
 
     def can_sign_planning(self, user):
+        # (این منطق طبق گفته شما درست است و دست نخورده باقی می‌ماند)
         return hasattr(user, "profile") and user.profile.user_type in ["factory_planner", "management"] and self.status == ProductionStatus.DRAFT
 
     def can_sign_factory(self, user):
+        # (این منطق طبق گفته شما درست است و دست نخورده باقی می‌ماند)
         return hasattr(user, "profile") and user.profile.user_type in ["factory_manager", "management"] and self.status == ProductionStatus.PLANNING_SIGNED
 
     def can_cancel(self, user):
+        # --- *** شروع تغییر منطق *** ---
+        # قانون ۱: اگر درخواست نهایی (تایید مدیر) یا لغو شده باشد، هیچکس نمی‌تواند لغو کند
+        if self.status in [ProductionStatus.FACTORY_SIGNED, ProductionStatus.CANCELED]:
+            return False
+
         if not getattr(user, "is_authenticated", False) or not hasattr(user, "profile"):
             return False
+        
         role = user.profile.user_type
-        if self.status == ProductionStatus.CANCELED:
-            return False
-        if role == "management":
+        
+        # قانون ۲: مدیر، مدیر کارخانه و برنامه‌ریز همگی می‌توانند تا قبل از نهایی شدن لغو کنند
+        if role in ["management", "factory_manager", "factory_planner"]:
             return True
-        if role == "factory_planner":
-            return self.created_by_id == user.id and self.status in [ProductionStatus.DRAFT, ProductionStatus.PLANNING_SIGNED]
+        
         return False
+        # --- *** پایان تغییر منطق *** ---
 
 
 class ProductionItem(models.Model):

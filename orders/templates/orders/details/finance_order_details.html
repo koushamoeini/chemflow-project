@@ -1,36 +1,10 @@
 {% extends "orders/details/order_details.html" %}
 
-{% block action_buttons %}
-
-{% if can_edit %}
-<div class="order-actions-container">
-    <div class="top-actions d-flex justify-content-between align-items-start mb-3 py-1">
-
-        <div class="d-flex gap-2">
-            {% if can_edit %}
-            <a href="{% url 'orders:order_update' order.pk %}" class="btn btn-warning btn-sm">ویرایش</a>
-            {% endif %}
-
-            {% if can_approve_finance and order.status == 'pending_finance' %}
-            <form method="post" action="{% url 'orders:approve_order' order.pk 'finance' %}">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-success btn-sm">تأیید مالی</button>
-            </form>
-            {% endif %}
-        </div>
-
-        <div>
-            {% if can_cancel %}
-            <form method="post" action="{% url 'orders:cancel_order' order.pk %}" class="cancel-form d-flex gap-2">
-                {% csrf_token %}
-                <input type="password" name="confirm_password" placeholder="رمز عبور" required class="form-control form-control-sm w-auto">
-                <button type="submit" class="btn btn-danger btn-sm">لغو سفارش</button>
-            </form>
-            {% endif %}
-        </div>
-        
-    </div>
-</div>
-{% endif %}
-
+{% block approval_buttons %}
+    {% if can_approve_finance %}
+    <form method="post" action="{% url 'orders:approve_order' order.pk 'finance' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success btn-sm">تأیید مالی</button>
+    </form>
+    {% endif %}
 {% endblock %}

@@ -67,16 +67,25 @@
         </div>
     </div>
 
+    {% if can_edit or can_sign_planning or can_sign_factory or can_cancel %}
     <div class="order-actions-container">
-        {# --- تغییر اصلی اینجاست --- #}
         <div class="top-actions d-flex justify-content-between align-items-center">
             <div class="d-flex gap-2">
                 {% block action_buttons %}
-                {# این بلاک حالا خالی است و توسط فایل‌های فرزند پر می‌شود #}
                 {% endblock %}
             </div>
-            <a href="{% url 'planning:prodreq_list' %}" class="btn btn-secondary">بازگشت</a>
+            <div>
+                {% if can_cancel %}
+                <form method="post" action="{% url 'planning:cancel_prodreq' req.pk %}" class="cancel-form d-flex gap-2">
+                {% csrf_token %}
+                <input type="password" name="confirm_password" placeholder="رمز عبور" required class="form-control form-control-sm w-auto">
+                <button type="submit" class="btn btn-danger btn-sm">لغو درخواست</button>
+                </form>
+                {% endif %}
+            </div>
         </div>
     </div>
+    {% endif %}
 </div>
 {% endblock %}
+

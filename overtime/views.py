@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate
 from django.contrib import messages
 from django.db import transaction
 from django.http import HttpResponseForbidden
-from orders.utils import require_password
+from core.utils import require_password
 from .models import OvertimeRequest, OvertimeStatus
 from .forms import OvertimeRequestForm, OvertimeItemFormSet
 

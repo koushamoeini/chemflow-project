@@ -17,5 +17,6 @@ urlpatterns = [
     path("production/<int:pk>/sign/factory/", views.sign_factory, name="sign_factory"),
     path("pending/planning/", views.pending_planning, name="pending_planning"),
     path("pending/factory/", views.pending_factory, name="pending_factory"),
+    path('prodreq/<int:pk>/cancel/', views.cancel_prodreq, name='cancel_prodreq'),
      
 ]
